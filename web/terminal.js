@@ -50,3 +50,24 @@ terminal.onData((data) => {
 });
 
 window.addEventListener("resize", () => fit.fit());
+
+for (const media of document.querySelectorAll(".project-media[data-demo]")) {
+  function showDemo() {
+    if (media.querySelector(".project-demo")) return;
+    const demo = document.createElement("img");
+    demo.className = "project-demo";
+    demo.alt = "";
+    demo.addEventListener("load", () => demo.classList.add("is-ready"), { once: true });
+    media.append(demo);
+    demo.src = media.dataset.demo;
+  }
+
+  function hideDemo() {
+    media.querySelector(".project-demo")?.remove();
+  }
+
+  media.addEventListener("pointerenter", showDemo);
+  media.addEventListener("pointerleave", hideDemo);
+  media.addEventListener("focus", showDemo);
+  media.addEventListener("blur", hideDemo);
+}
