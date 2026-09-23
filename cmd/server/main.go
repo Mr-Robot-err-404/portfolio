@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.Handle("/", http.FileServer(http.Dir("web")))
 
 	log.Println("portfolio available at http://localhost:4242")
