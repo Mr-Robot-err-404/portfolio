@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en" data-theme="kanagawa">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Harry Lawton builds graphics software, terminal tools, and games from first principles.">
+    <title>Harry Lawton / Software Engineer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css">
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="identity" href="/" aria-label="Home">HL<span>/</span>01</a>
+      <p>Software engineer · graphics programmer</p>
+      <a href="https://github.com/Mr-Robot-err-404">GitHub ↗</a>
+    </header>
+
+    <main>
+      <section class="terminal-section" aria-labelledby="terminal-title">
+        <div class="section-label">
+          <span>01</span>
+          <h1 id="terminal-title">A shell, not a simulation.</h1>
+          <p>Type <code>help</code> to look around.</p>
+        </div>
+        <div class="terminal-frame">
+          <div class="terminal-bar"><span>visitor@portfolio:~</span><span>80×24</span></div>
+          <div id="terminal"></div>
+        </div>
+      </section>
+
+      <section class="work" aria-labelledby="work-title">
+        <div class="section-label">
+          <span>02</span>
+          <h2 id="work-title">Selected work</h2>
+          <p>Built close to the metal.</p>
+        </div>
+
+        <article class="project-card">
+          <a class="project-media" href="https://github.com/Mr-Robot-err-404/terminal-wireframe" aria-label="View terminal-wireframe on GitHub">
+            <svg viewBox="0 0 720 420" role="img" aria-label="Wireframe landscape rendered in a terminal">
+              <rect width="720" height="420" fill="currentColor" opacity=".06"/>
+              <g fill="none" stroke="currentColor" stroke-width="2" opacity=".72">
+                <path d="M0 330 110 230 205 292 340 115 472 276 565 190 720 318"/>
+                <path d="M0 366 110 230M72 420l38-190m95 62L136 420m69-128 135-177m0 0 42 305m90-144-90 144m90-144 93-86m0 0 76 230m-76-230 155 128"/>
+                <path d="M0 366h720M0 390h720M30 420l310-305m-232 305 232-305m-145 305 145-305m-52 305 52-305m52 305-52-305m145 305L340 115m238 305L340 115m330 305L340 115" opacity=".45"/>
+              </g>
+              <text x="28" y="42" fill="currentColor" font-family="monospace" font-size="15">terminal-wireframe / frame 0042</text>
+            </svg>
+          </a>
+          <div class="project-copy">
+            <div class="project-number">01 / 03</div>
+            <h3>terminal-wireframe</h3>
+            <p>A 3D wireframe renderer that turns meshes into terminal output. Perspective, clipping, and rasterization written from scratch in Odin.</p>
+            <ul aria-label="Technologies"><li>Odin</li><li>3D graphics</li><li>Terminal</li></ul>
+            <a class="project-link" href="https://github.com/Mr-Robot-err-404/terminal-wireframe">Source on GitHub ↗</a>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer><span>Harry Lawton</span><span>Belfast, Northern Ireland</span></footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xterm-addon-web-links@0.9.0/lib/xterm-addon-web-links.min.js"></script>
+    <script src="/terminal.js"></script>
+  </body>
+</html>
