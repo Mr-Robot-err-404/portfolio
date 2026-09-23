@@ -1,8 +1,8 @@
-.PHONY: build serve
+.PHONY: build server
 
 build:
 	mkdir -p bin
 	go build -o bin/portfolio ./cmd/server
 
-serve: build
+server: build
 	./bin/portfolio
