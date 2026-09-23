@@ -76,7 +76,8 @@ h3 { font-size: clamp(25px, 3vw, 40px); }
 .project-copy ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .project-copy li { padding: 3px 8px; border: 1px solid var(--muted); font-size: 11px; }
 .project-source { display: flex; align-items: center; gap: 16px; margin-left: auto; white-space: nowrap; }
-.project-source span { color: var(--muted); }
+.project-stars { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 1em; line-height: 1; }
+.project-stars svg { width: 1em; height: 1em; fill: currentColor; }
 .project-link { display: block; width: 96px; height: 28px; background: var(--muted); mask: url('/public/github.svg') center / contain no-repeat; }
 .project-link:hover, .project-link:focus-visible { background: var(--text); }
 
