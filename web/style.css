@@ -71,7 +71,7 @@ h3 { font-size: clamp(25px, 3vw, 40px); }
 .project-media svg { width: 100%; height: 100%; }
 .project-media-wide { aspect-ratio: 2 / 1; }
 .project-media img { width: 100%; height: 100%; object-fit: cover; }
-.project-demo { position: absolute; inset: 0; opacity: 0; }
+.project-demo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
 .project-demo.is-ready { opacity: 1; transition: opacity .2s; }
 
 .project-copy { display: flex; flex-direction: column; gap: 24px; padding: 32px; }

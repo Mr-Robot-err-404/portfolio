@@ -51,19 +51,33 @@ terminal.onData((data) => {
 
 window.addEventListener("resize", () => fit.fit());
 
-for (const media of document.querySelectorAll(".project-media[data-demo]")) {
+for (const media of document.querySelectorAll(".project-media[data-demo], .project-media[data-video]")) {
   function showDemo() {
     if (media.querySelector(".project-demo")) return;
-    const demo = document.createElement("img");
+    const isVideo = Boolean(media.dataset.video);
+    const demo = document.createElement(isVideo ? "video" : "img");
     demo.className = "project-demo";
-    demo.alt = "";
-    demo.addEventListener("load", () => demo.classList.add("is-ready"), { once: true });
+    if (isVideo) {
+      demo.muted = true;
+      demo.loop = true;
+      demo.playsInline = true;
+      demo.addEventListener("loadeddata", () => {
+        if (!demo.isConnected) return;
+        demo.classList.add("is-ready");
+        demo.play().catch(() => {});
+      }, { once: true });
+    } else {
+      demo.alt = "";
+      demo.addEventListener("load", () => demo.classList.add("is-ready"), { once: true });
+    }
     media.append(demo);
-    demo.src = media.dataset.demo;
+    demo.src = media.dataset.video || media.dataset.demo;
   }
 
   function hideDemo() {
-    media.querySelector(".project-demo")?.remove();
+    const demo = media.querySelector(".project-demo");
+    if (demo instanceof HTMLVideoElement) demo.pause();
+    demo?.remove();
   }
 
   media.addEventListener("pointerenter", showDemo);
