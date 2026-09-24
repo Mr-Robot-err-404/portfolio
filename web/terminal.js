@@ -1,5 +1,6 @@
 const root = document.documentElement;
 const styles = getComputedStyle(root);
+
 const terminal = new Terminal({
   cursorBlink: true,
   fontFamily: '"IBM Plex Mono", monospace',
@@ -35,17 +36,26 @@ terminal.writeln("A real sandboxed shell is coming next. Type 'help'.");
 prompt();
 
 terminal.onData((data) => {
-  if (data === "\r") {
-    if (input === "clear") terminal.clear();
-    else terminal.write(`\r\n${commands[input] || (input ? `${input}: command not found` : "")}`);
-    input = "";
-    prompt();
-  } else if (data === "\u007f" && input) {
-    input = input.slice(0, -1);
-    terminal.write("\b \b");
-  } else if (/^[\x20-\x7e]$/.test(data)) {
-    input += data;
-    terminal.write(data);
+  switch (data) {
+    case "\r":
+      if (input === "clear") terminal.clear();
+      else {
+        const output = commands[input] ?? (input ? `${input}: command not found` : "");
+        terminal.write(`\r\n${output}`);
+      } 
+      input = "";
+      break;
+
+    case "\u007f":
+      if (!input) return;
+      input = input.slice(0, -1);
+      terminal.write("\b \b");
+      break;
+
+    default:
+      if (!/^[\x20-\x7e]$/.test(data)) return
+      input += data;
+      terminal.write(data);
   }
 });
 
