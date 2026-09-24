@@ -5,6 +5,7 @@
   --text: #dcd7ba;
   --muted: #727169;
   --accent: #98bb6c;
+  --shadow: #7e9cd8;
 }
 
 [data-theme="catppuccin-latte"] {
@@ -13,6 +14,7 @@
   --text: #4c4f69;
   --muted: #8c8fa1;
   --accent: #40a02b;
+  --shadow: #1e66f5;
 }
 
 * { box-sizing: border-box; }
@@ -44,7 +46,7 @@ h3 { font-size: clamp(25px, 3vw, 40px); }
   overflow: hidden;
   background: var(--surface);
   border: 1px solid var(--muted);
-  box-shadow: 12px 12px 0 color-mix(in srgb, var(--accent) 18%, transparent);
+  box-shadow: 12px 12px 0 color-mix(in srgb, var(--shadow) 18%, transparent);
 }
 
 #terminal { height: 100%; }
@@ -92,6 +94,6 @@ h3 { font-size: clamp(25px, 3vw, 40px); }
 @media (max-width: 760px) {
   main { padding: 24px 18px 72px; }
   .terminal-section { padding: 0 0 72px; }
-  .terminal-frame { height: clamp(400px, 70vh, 700px); padding: 18px; box-shadow: 7px 7px 0 color-mix(in srgb, var(--accent) 18%, transparent); }
+  .terminal-frame { height: clamp(400px, 70vh, 700px); padding: 18px; box-shadow: 7px 7px 0 color-mix(in srgb, var(--shadow) 18%, transparent); }
   .project-card { grid-template-columns: 1fr; }
 }
