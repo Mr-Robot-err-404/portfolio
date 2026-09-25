@@ -1,7 +1,16 @@
+// @ts-check
+
+/** @typedef {import("./types.js").XTermGlobals} XTermGlobals */
+
 const root = document.documentElement;
 const styles = getComputedStyle(root);
 
-const terminal = new Terminal({
+const xtermGlobals = /** @type {XTermGlobals} */ (/** @type {unknown} */ (window));
+const XTerm = xtermGlobals.Terminal;
+const XTermFitAddon = xtermGlobals.FitAddon.FitAddon;
+const XTermWebLinksAddon = xtermGlobals.WebLinksAddon.WebLinksAddon;
+
+const terminal = new XTerm({
   cursorBlink: true,
   fontFamily: '"IBM Plex Mono", monospace',
   fontSize: 14,
@@ -13,16 +22,21 @@ const terminal = new Terminal({
     green: styles.getPropertyValue("--accent").trim(),
   },
 });
-const fit = new FitAddon.FitAddon();
+const fit = new XTermFitAddon();
 
 terminal.loadAddon(fit);
-terminal.loadAddon(new WebLinksAddon.WebLinksAddon());
-terminal.open(document.querySelector("#terminal"));
+terminal.loadAddon(new XTermWebLinksAddon());
+
+const terminalElement = document.querySelector("#terminal");
+if (!(terminalElement instanceof HTMLElement)) throw new Error("Terminal element not found");
+terminal.open(terminalElement);
 fit.fit();
 
+/** @type {Record<string, string>} */
 const commands = {
   help: "about      who I am\r\nprojects   selected work\r\nclear      clear the terminal",
-  about: "Harry Lawton. Software engineer exploring graphics, games, and tools from first principles.",
+  about:
+    "Harry Lawton. Software engineer exploring graphics, games, and tools from first principles.",
   projects: "terminal-wireframe   perkins   tinyrenderer",
 };
 let input = "";
@@ -42,7 +56,7 @@ terminal.onData((data) => {
       else {
         const output = commands[input] ?? (input ? `${input}: command not found` : "");
         terminal.write(`\r\n${output}`);
-      } 
+      }
       input = "";
       break;
 
@@ -53,7 +67,7 @@ terminal.onData((data) => {
       break;
 
     default:
-      if (!/^[\x20-\x7e]$/.test(data)) return
+      if (!/^[\x20-\x7e]$/.test(data)) return;
       input += data;
       terminal.write(data);
   }
@@ -61,27 +75,44 @@ terminal.onData((data) => {
 
 window.addEventListener("resize", () => fit.fit());
 
-for (const media of document.querySelectorAll(".project-media[data-demo], .project-media[data-video]")) {
+const projectMedia = /** @type {NodeListOf<HTMLElement>} */ (
+  document.querySelectorAll(".project-media[data-demo], .project-media[data-video]")
+);
+
+for (const media of projectMedia) {
   function showDemo() {
     if (media.querySelector(".project-demo")) return;
+    const source = media.dataset.video || media.dataset.demo;
+    if (!source) return;
     const isVideo = Boolean(media.dataset.video);
-    const demo = document.createElement(isVideo ? "video" : "img");
-    demo.className = "project-demo";
+
+    /** @type {HTMLImageElement | HTMLVideoElement} */
+    let demo;
+
     if (isVideo) {
+      const video = document.createElement("video");
+      demo = video;
       demo.muted = true;
       demo.loop = true;
       demo.playsInline = true;
-      demo.addEventListener("loadeddata", () => {
-        if (!demo.isConnected) return;
-        demo.classList.add("is-ready");
-        demo.play().catch(() => {});
-      }, { once: true });
+      demo.addEventListener(
+        "loadeddata",
+        () => {
+          if (!demo.isConnected) return;
+          demo.classList.add("is-ready");
+          video.play().catch(() => {});
+        },
+        { once: true },
+      );
     } else {
+      const image = document.createElement("img");
+      demo = image;
       demo.alt = "";
       demo.addEventListener("load", () => demo.classList.add("is-ready"), { once: true });
     }
+    demo.className = "project-demo";
     media.append(demo);
-    demo.src = media.dataset.video || media.dataset.demo;
+    demo.src = source;
   }
 
   function hideDemo() {
