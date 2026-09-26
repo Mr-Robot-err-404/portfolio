@@ -10,6 +10,14 @@ const XTerm = xtermGlobals.Terminal;
 const XTermFitAddon = xtermGlobals.FitAddon.FitAddon;
 const XTermWebLinksAddon = xtermGlobals.WebLinksAddon.WebLinksAddon;
 
+/** @type {Record<string, string>} */
+const commands = {
+  help: "about      who I am\r\nprojects   selected work\r\nclear      clear the terminal",
+  about:
+    "Harry Lawton. Software engineer exploring graphics, games, and tools from first principles.",
+  projects: "terminal-wireframe   perkins   tinyrenderer",
+};
+
 const terminal = new XTerm({
   cursorBlink: true,
   fontFamily: '"IBM Plex Mono", monospace',
@@ -29,46 +37,53 @@ terminal.loadAddon(new XTermWebLinksAddon());
 
 const terminalElement = document.querySelector("#terminal");
 if (!(terminalElement instanceof HTMLElement)) throw new Error("Terminal element not found");
+
 terminal.open(terminalElement);
 fit.fit();
-
-/** @type {Record<string, string>} */
-const commands = {
-  help: "about      who I am\r\nprojects   selected work\r\nclear      clear the terminal",
-  about:
-    "Harry Lawton. Software engineer exploring graphics, games, and tools from first principles.",
-  projects: "terminal-wireframe   perkins   tinyrenderer",
-};
-let input = "";
 
 function prompt() {
   terminal.write("\r\n\x1b[32mvisitor@portfolio\x1b[0m:\x1b[34m~\x1b[0m$ ");
 }
 
-terminal.writeln("\x1b[32mPORTFOLIO / SYSTEM ONLINE\x1b[0m");
-terminal.writeln("A real sandboxed shell is coming next. Type 'help'.");
-prompt();
+function startup() {
+  terminal.writeln("\x1b[32mPORTFOLIO / SYSTEM ONLINE\x1b[0m");
+  terminal.writeln("A real sandboxed shell is coming next. Type 'help'.");
+  prompt();
+}
+startup();
+
+const protocol = location.protocol === "https:" ? "wss:" : "ws:";
+const socket = new WebSocket(`${protocol}//${location.host}/shell`);
+
+// socket.addEventListener("open", () => console.log("websocket connected"));
+socket.addEventListener("message", (event) => {
+    terminal.writeln(event.data)
+    prompt();
+});
+socket.addEventListener("error", () => terminal.writeln("WebSocket error"));
+socket.addEventListener("close", () => terminal.writeln("WebSocket closed"));
+
+let buffer = "";
 
 terminal.onData((data) => {
   switch (data) {
     case "\r":
-      if (input === "clear") terminal.clear();
+      if (buffer === "clear") terminal.clear();
       else {
-        const output = commands[input] ?? (input ? `${input}: command not found` : "");
-        terminal.write(`\r\n${output}`);
+         socket.send(buffer);
       }
-      input = "";
+      buffer = "";
       break;
 
     case "\u007f":
-      if (!input) return;
-      input = input.slice(0, -1);
+      if (!buffer) return;
+      buffer = buffer.slice(0, -1);
       terminal.write("\b \b");
       break;
 
     default:
       if (!/^[\x20-\x7e]$/.test(data)) return;
-      input += data;
+      buffer += data;
       terminal.write(data);
   }
 });
