@@ -33,17 +33,6 @@ if (!(terminalElement instanceof HTMLElement)) throw new Error("Terminal element
 terminal.open(terminalElement);
 fit.fit();
 
-function prompt() {
-  terminal.write("\r\n\x1b[32mvisitor@portfolio\x1b[0m:\x1b[34m~\x1b[0m$ ");
-}
-
-function startup() {
-  terminal.writeln("\x1b[32mPORTFOLIO / SYSTEM ONLINE\x1b[0m");
-  terminal.writeln("A real sandboxed shell is coming next. Type 'help'.");
-  prompt();
-}
-startup();
-
 const protocol = location.protocol === "https:" ? "wss:" : "ws:";
 const socket = new WebSocket(`${protocol}//${location.host}/shell`);
 
