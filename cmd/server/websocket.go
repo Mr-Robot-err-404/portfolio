@@ -1,16 +1,52 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gorilla/websocket"
 )
 
-type Server struct {
-	upgrader *websocket.Upgrader
+const (
+	InputEvent  string = "input"
+	ResizeEvent string = "resize"
+)
+
+const (
+	AboutCommand string = "about"
+)
+
+type ClientMessage struct {
+	Event   string  `json:"event"`
+	Command *string `json:"command"`
+	Resize  *Resize `json:"resize"`
+}
+type Resize struct {
+	Rows int `json:"rows"`
+	Cols int `json:"cols"`
 }
 
-func (server *Server) handle(w http.ResponseWriter, r *http.Request) {
+func (server *Server) parseInput(input *string) []byte {
+	if input == nil {
+		return []byte("Received corrupt payload")
+	}
+	command := strings.TrimSpace(strings.ToLower(*input))
+	if response, ok := server.presets[command]; ok {
+		return response
+	}
+	switch command {
+	default:
+		return unknown(command)
+	}
+}
+
+func unknown(command string) []byte {
+	return fmt.Appendf(nil, "Command not found: %s", command)
+}
+
+func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 	conn, err := server.upgrader.Upgrade(w, r, nil)
 
 	if err != nil {
@@ -23,8 +59,27 @@ func (server *Server) handle(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return
 		}
-		if err := conn.WriteMessage(messageType, data); err != nil {
-			return
+		if messageType != websocket.TextMessage {
+			fmt.Printf("received unexpected messageType: %d", messageType)
+			continue
+		}
+		var message ClientMessage
+
+		if err = json.Unmarshal(data, &message); err != nil {
+			fmt.Printf("unmarshal failure: %s", data)
+			continue
+		}
+		var response []byte
+
+		switch message.Event {
+		case ResizeEvent:
+		case InputEvent:
+			response = server.parseInput(message.Command)
+
+			if err := conn.WriteMessage(websocket.TextMessage, response); err != nil {
+				fmt.Println(err)
+				return
+			}
 		}
 	}
 }

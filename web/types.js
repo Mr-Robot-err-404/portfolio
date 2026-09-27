@@ -1,14 +1,19 @@
 /**
  * @typedef {Object} InputMessage
- * @property {"input"} type
- * @property {string} data
+ * @property {"input"} event
+ * @property {string} command
  */
 
 /**
  * @typedef {Object} ResizeMessage
- * @property {"resize"} type
- * @property {number} cols
+ * @property {"resize"} event
+ * @property {Resize} resize
+ */
+
+/**
+ * @typedef {Object} Resize
  * @property {number} rows
+ * @property {number} cols
  */
 
 /** @typedef {InputMessage | ResizeMessage} ClientMessage */

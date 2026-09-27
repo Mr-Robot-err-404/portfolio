@@ -10,14 +10,6 @@ const XTerm = xtermGlobals.Terminal;
 const XTermFitAddon = xtermGlobals.FitAddon.FitAddon;
 const XTermWebLinksAddon = xtermGlobals.WebLinksAddon.WebLinksAddon;
 
-/** @type {Record<string, string>} */
-const commands = {
-  help: "about      who I am\r\nprojects   selected work\r\nclear      clear the terminal",
-  about:
-    "Harry Lawton. Software engineer exploring graphics, games, and tools from first principles.",
-  projects: "terminal-wireframe   perkins   tinyrenderer",
-};
-
 const terminal = new XTerm({
   cursorBlink: true,
   fontFamily: '"IBM Plex Mono", monospace',
@@ -57,20 +49,30 @@ const socket = new WebSocket(`${protocol}//${location.host}/shell`);
 
 // socket.addEventListener("open", () => console.log("websocket connected"));
 socket.addEventListener("message", (event) => {
-    terminal.writeln(event.data)
-    prompt();
+    terminal.write(event.data)
 });
 socket.addEventListener("error", () => terminal.writeln("WebSocket error"));
 socket.addEventListener("close", () => terminal.writeln("WebSocket closed"));
 
 let buffer = "";
 
+/**
+ * @param {string} buf
+ */
+function sendInput(buf) {
+  const payload = JSON.stringify({
+    event: "input",
+    command: buf
+  });
+  socket.send(payload);
+}
+
 terminal.onData((data) => {
   switch (data) {
     case "\r":
       if (buffer === "clear") terminal.clear();
       else {
-         socket.send(buffer);
+         sendInput(buffer);
       }
       buffer = "";
       break;
