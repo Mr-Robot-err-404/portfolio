@@ -14,7 +14,7 @@ const terminal = new XTerm({
   cursorBlink: true,
   fontFamily: '"IBM Plex Mono", monospace',
   fontSize: 14,
-  lineHeight: 1.35,
+  lineHeight: 1,
   theme: {
     background: styles.getPropertyValue("--surface").trim(),
     foreground: styles.getPropertyValue("--text").trim(),
@@ -26,6 +26,7 @@ const fit = new XTermFitAddon();
 
 terminal.loadAddon(fit);
 terminal.loadAddon(new XTermWebLinksAddon());
+terminal.options.convertEol = true;
 
 const terminalElement = document.querySelector("#terminal");
 if (!(terminalElement instanceof HTMLElement)) throw new Error("Terminal element not found");
@@ -36,9 +37,15 @@ fit.fit();
 const protocol = location.protocol === "https:" ? "wss:" : "ws:";
 const socket = new WebSocket(`${protocol}//${location.host}/shell`);
 
-// socket.addEventListener("open", () => console.log("websocket connected"));
-socket.addEventListener("message", (event) => {
-    terminal.write(event.data)
+socket.binaryType = "arraybuffer";
+
+socket.addEventListener("message", async (event) => {
+  if (typeof event.data === "string") {
+    terminal.write(event.data);
+    return;
+  }
+  const bytes = new Uint8Array(event.data);
+  terminal.write(new TextDecoder().decode(bytes));
 });
 socket.addEventListener("error", () => terminal.writeln("WebSocket error"));
 socket.addEventListener("close", () => terminal.writeln("WebSocket closed"));
@@ -59,10 +66,7 @@ function sendInput(buf) {
 terminal.onData((data) => {
   switch (data) {
     case "\r":
-      if (buffer === "clear") terminal.clear();
-      else {
-         sendInput(buffer);
-      }
+      sendInput(buffer);
       buffer = "";
       break;
 

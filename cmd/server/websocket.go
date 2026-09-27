@@ -20,12 +20,11 @@ const (
 )
 
 const (
-	Green    string = "\x1b[32m"
-	Blue     string = "\x1b[34m"
-	Reset    string = "\x1b[0m"
-	Shell    string = "❯"
-	NextLine string = "\n\r"
-	Clear    string = "\x1b[2J\x1b[H"
+	Green string = "\x1b[32m"
+	Blue  string = "\x1b[34m"
+	Reset string = "\x1b[0m"
+	Shell string = "❯"
+	Clear string = "\x1b[2J\x1b[H"
 )
 
 type ClientMessage struct {
@@ -44,7 +43,7 @@ func (server *Server) parseInput(input *string) []byte {
 	}
 	command := strings.TrimSpace(strings.ToLower(*input))
 	if response, ok := server.presets[command]; ok {
-		return response
+		return batch(sandwich(response), prompt())
 	}
 	switch command {
 	case ClearCommand:
@@ -55,7 +54,7 @@ func (server *Server) parseInput(input *string) []byte {
 }
 
 func flush(conn *websocket.Conn, response []byte) {
-	if err := conn.WriteMessage(websocket.TextMessage, response); err != nil {
+	if err := conn.WriteMessage(websocket.BinaryMessage, response); err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -96,6 +95,29 @@ func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func batch(payloads ...[]byte) []byte {
+	var total int
+
+	for _, payload := range payloads {
+		total += len(payload)
+	}
+	result := make([]byte, 0, total)
+
+	for _, payload := range payloads {
+		result = append(result, payload...)
+	}
+	return result
+}
+func prependLine(payload []byte) []byte {
+	return append([]byte("\n"), payload...)
+}
+func appendLine(payload []byte) []byte {
+	return append(payload, []byte("\n")...)
+}
+func sandwich(payload []byte) []byte {
+	return appendLine(prependLine(payload))
+}
+
 func startup() []byte {
 	return fmt.Appendf(nil, "%s\n\n\r%s", color("PORTFOLIO / SYSTEM ONLINE", Green), prompt())
 }
@@ -110,5 +132,5 @@ func prompt() []byte {
 	return fmt.Appendf(nil, "%s:~ %s ", user, color(Shell, Blue))
 }
 func unknown(command string) []byte {
-	return fmt.Appendf(nil, "%sCommand not found: %s%s%s", NextLine, command, NextLine, prompt())
+	return fmt.Appendf(nil, "\nCommand not found: %s\n%s", command, prompt())
 }
