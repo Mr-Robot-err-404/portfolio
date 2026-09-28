@@ -33,54 +33,60 @@ func stats(rows []Stat, width int, primary, secondary string) []byte {
 	if valueWidth < maxValueWidth+2 {
 		return nil
 	}
+
 	var out strings.Builder
 
-	write := func(text, color string) {
-		fmt.Fprintf(&out, "\x1b[%s;%sm%s\x1b[0m", color, StatsBG, text)
+	styled := func(text, foreground string) string {
+		return fmt.Sprintf(
+			"\x1b[%s;%sm%s%s",
+			foreground,
+			StatsBG,
+			text,
+			Reset,
+		)
 	}
-	border := func(left, middle, right string) {
-		write(
+	border := func(left, middle, right string, newline bool) {
+		out.WriteString(styled(
 			left+
 				strings.Repeat("─", keyWidth)+
 				middle+
 				strings.Repeat("─", valueWidth)+
 				right,
 			primary,
-		)
-		out.WriteString("\r\n")
+		))
+
+		if newline {
+			out.WriteString("\r\n")
+		}
 	}
-	border("┌", "┬", "┐")
+	border("┌", "┬", "┐", true)
 
 	for i, row := range rows {
-		color := primary
+		rowColor := primary
 		if i%2 != 0 {
-			color = secondary
+			rowColor = secondary
 		}
 		keyPadding := keyWidth - utf8.RuneCountInString(row.Key) - 1
 		valuePadding := valueWidth - utf8.RuneCountInString(row.Value) - 1
 
-		line := "│ " +
-			row.Key +
-			strings.Repeat(" ", keyPadding) +
-			"│ " +
-			row.Value +
-			strings.Repeat(" ", valuePadding) +
-			"│"
-
-		write(line, color)
+		out.WriteString(styled("│ ", primary))
+		out.WriteString(styled(
+			row.Key+strings.Repeat(" ", keyPadding),
+			rowColor,
+		))
+		out.WriteString(styled("│ ", primary))
+		out.WriteString(styled(
+			row.Value+strings.Repeat(" ", valuePadding),
+			rowColor,
+		))
+		out.WriteString(styled("│", primary))
 		out.WriteString("\r\n")
 
 		if i < len(rows)-1 {
-			border("├", "┼", "┤")
+			border("├", "┼", "┤", true)
 		}
 	}
-	write(
-		"└"+
-			strings.Repeat("─", keyWidth)+
-			"┴"+
-			strings.Repeat("─", valueWidth)+
-			"┘",
-		primary,
-	)
+	border("└", "┴", "┘", false)
+
 	return []byte(out.String())
 }
