@@ -17,14 +17,18 @@ const (
 const (
 	AboutCommand string = "about"
 	ClearCommand string = "clear"
+	StatsCommand string = "stats"
 )
 
 const (
-	Green string = "\x1b[32m"
-	Blue  string = "\x1b[34m"
-	Reset string = "\x1b[0m"
-	Shell string = "❯"
-	Clear string = "\x1b[2J\x1b[H"
+	Green   string = "\x1b[32m"
+	Blue    string = "\x1b[34m"
+	Reset   string = "\x1b[0m"
+	Shell   string = "❯"
+	Clear   string = "\x1b[2J\x1b[H"
+	Amber   string = "38;2;230;195;132"
+	Ocean   string = "38;2;126;156;216"
+	StatsBG string = "48;2;13;12;12"
 )
 
 type ClientMessage struct {
@@ -48,6 +52,16 @@ func (server *Server) parseInput(input *string) []byte {
 	switch command {
 	case ClearCommand:
 		return clearAll()
+	case StatsCommand:
+		response := stats([]Stat{
+			{Key: "Name", Value: "Harry Lawton"},
+			{Key: "Role", Value: "Software Engineer"},
+			{Key: "Languages", Value: "Go, Odin, Typescript"},
+			{Key: "Work", Value: "Backend, Infrastructure, Systems"},
+			{Key: "Domains of interest", Value: "Graphics, Game Development"},
+			{Key: "Approach", Value: "Generalist"},
+		}, 60, Ocean, Amber)
+		return batch(sandwich(response), prompt())
 	default:
 		return unknown(command)
 	}
