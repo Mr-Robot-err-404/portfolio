@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Mr-Robot-err-404/portfolio/pkg/ascii"
 	"github.com/gorilla/websocket"
 )
 
@@ -18,17 +19,6 @@ const (
 	AboutCommand string = "about"
 	ClearCommand string = "clear"
 	StatsCommand string = "stats"
-)
-
-const (
-	Green   string = "\x1b[32m"
-	Blue    string = "\x1b[34m"
-	Reset   string = "\x1b[0m"
-	Shell   string = "❯"
-	Clear   string = "\x1b[2J\x1b[H"
-	Amber   string = "38;2;230;195;132"
-	Ocean   string = "38;2;126;156;216"
-	StatsBG string = "48;2;13;12;12"
 )
 
 type ClientMessage struct {
@@ -47,23 +37,25 @@ func (server *Server) parseInput(input *string) []byte {
 	}
 	command := strings.TrimSpace(strings.ToLower(*input))
 	if response, ok := server.presets[command]; ok {
-		return batch(sandwich(response), prompt())
+		return batch(sandwich(response), ascii.Prompt())
 	}
 	switch command {
 	case ClearCommand:
-		return clearAll()
+		return ascii.ClearAll()
+
 	case StatsCommand:
-		response := stats([]Stat{
+		response := ascii.Table([]ascii.Stat{
 			{Key: "Name", Value: "Harry Lawton"},
 			{Key: "Role", Value: "Software Engineer"},
 			{Key: "Languages", Value: "Go, Odin, Typescript"},
 			{Key: "Work", Value: "Backend, Infrastructure, Systems"},
 			{Key: "Domains of interest", Value: "Graphics, Game Development"},
 			{Key: "Approach", Value: "Generalist"},
-		}, 60, Ocean, Amber)
-		return batch(sandwich(response), prompt())
+		}, 60, ascii.Ocean, ascii.Amber)
+		return batch(sandwich(response), ascii.Prompt())
+
 	default:
-		return unknown(command)
+		return ascii.Unknown(command)
 	}
 }
 
@@ -81,7 +73,7 @@ func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer conn.Close()
-	flush(conn, startup())
+	flush(conn, ascii.Startup())
 
 	for {
 		messageType, data, err := conn.ReadMessage()
@@ -130,21 +122,4 @@ func appendLine(payload []byte) []byte {
 }
 func sandwich(payload []byte) []byte {
 	return appendLine(prependLine(payload))
-}
-
-func startup() []byte {
-	return fmt.Appendf(nil, "%s\n\n\r%s", color("PORTFOLIO / SYSTEM ONLINE", Green), prompt())
-}
-func clearAll() []byte {
-	return fmt.Appendf(nil, "%s%s", Clear, prompt())
-}
-func color(msg string, color string) string {
-	return fmt.Sprintf("%s%s%s", color, msg, Reset)
-}
-func prompt() []byte {
-	user := color("visitor@portfolio", Green)
-	return fmt.Appendf(nil, "%s:~ %s ", user, color(Shell, Blue))
-}
-func unknown(command string) []byte {
-	return fmt.Appendf(nil, "\nCommand not found: %s\n%s", command, prompt())
 }

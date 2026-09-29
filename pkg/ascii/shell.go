@@ -1,0 +1,20 @@
+package ascii
+
+import "fmt"
+
+func Startup() []byte {
+	return fmt.Appendf(nil, "%s\n\n\r%s", Color("PORTFOLIO / SYSTEM ONLINE", Green), Prompt())
+}
+func ClearAll() []byte {
+	return fmt.Appendf(nil, "%s%s", Clear, Prompt())
+}
+func Color(msg string, color string) string {
+	return fmt.Sprintf("%s%s%s", color, msg, Reset)
+}
+func Prompt() []byte {
+	user := Color("visitor@portfolio", Green)
+	return fmt.Appendf(nil, "%s:~ %s ", user, Color(Shell, Blue))
+}
+func Unknown(command string) []byte {
+	return fmt.Appendf(nil, "\nCommand not found: %s\n%s", command, Prompt())
+}

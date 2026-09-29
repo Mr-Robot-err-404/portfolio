@@ -1,4 +1,4 @@
-package main
+package ascii
 
 import (
 	"fmt"
@@ -6,12 +6,23 @@ import (
 	"unicode/utf8"
 )
 
+const (
+	Green   string = "\x1b[32m"
+	Blue    string = "\x1b[34m"
+	Reset   string = "\x1b[0m"
+	Shell   string = "❯"
+	Clear   string = "\x1b[2J\x1b[H"
+	Amber   string = "38;2;230;195;132"
+	Ocean   string = "38;2;126;156;216"
+	StatsBG string = "48;2;13;12;12"
+)
+
 type Stat struct {
 	Key   string
 	Value string
 }
 
-func stats(rows []Stat, width int, primary, secondary string) []byte {
+func Table(rows []Stat, width int, primary, secondary string) []byte {
 	if width < 7 || len(rows) == 0 {
 		return nil
 	}

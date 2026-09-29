@@ -1,4 +1,4 @@
-.PHONY: build server
+.PHONY: build server cli
 
 build:
 	mkdir -p bin
@@ -6,3 +6,6 @@ build:
 
 server: build
 	./bin/portfolio
+
+cli:
+	go run ./cmd/cli
