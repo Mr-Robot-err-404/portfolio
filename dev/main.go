@@ -65,6 +65,7 @@ func background(inputPath, outputPath string) {
 	output := make([]byte, 0, len(input)+len(background))
 	output = append(output, background...)
 	output = append(output, bytes.ReplaceAll(input, []byte(ascii.Reset), resetBackground)...)
+	output = bytes.ReplaceAll(output, []byte("⠀"), []byte(" "))
 	output = append(output, []byte(ascii.Reset)...)
 
 	if err := os.WriteFile(outputPath, output, 0o644); err != nil {
@@ -89,18 +90,24 @@ func stitch(firstPath, secondPath, outputPath string, gap int) {
 	for _, line := range firstLines {
 		firstWidth = max(firstWidth, visibleWidth(line))
 	}
+	secondWidth := 0
+	for _, line := range secondLines {
+		secondWidth = max(secondWidth, visibleWidth(line))
+	}
 
 	lineCount := max(len(firstLines), len(secondLines))
 	firstOffset := (lineCount - len(firstLines)) / 2
 	secondOffset := (lineCount - len(secondLines)) / 2
-	rowStart := ascii.Reset + "\x1b[" + ascii.StatsBG + "m"
+	background := "\x1b[" + ascii.StatsBG + "m"
 	var output strings.Builder
 	for i := range lineCount {
-		output.WriteString(rowStart)
+		output.WriteString(ascii.Reset)
+		output.WriteString(background)
 		firstIndex := i - firstOffset
 		if firstIndex >= 0 && firstIndex < len(firstLines) {
 			output.WriteString(firstStates[firstIndex])
 			output.WriteString(firstLines[firstIndex])
+			output.WriteString(background)
 			output.WriteString(strings.Repeat(" ", firstWidth-visibleWidth(firstLines[firstIndex])))
 		} else {
 			output.WriteString(strings.Repeat(" ", firstWidth))
@@ -109,6 +116,10 @@ func stitch(firstPath, secondPath, outputPath string, gap int) {
 		secondIndex := i - secondOffset
 		if secondIndex >= 0 && secondIndex < len(secondLines) {
 			output.WriteString(secondLines[secondIndex])
+			output.WriteString(background)
+			output.WriteString(strings.Repeat(" ", secondWidth-visibleWidth(secondLines[secondIndex])))
+		} else {
+			output.WriteString(strings.Repeat(" ", secondWidth))
 		}
 		if i < lineCount-1 {
 			output.WriteString("\r\n")
