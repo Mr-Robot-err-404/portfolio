@@ -42,18 +42,6 @@ func (server *Server) parseInput(input *string) []byte {
 	switch command {
 	case ClearCommand:
 		return ascii.ClearAll()
-
-	case StatsCommand:
-		response := ascii.Table([]ascii.Stat{
-			{Key: "Name", Value: "Harry Lawton"},
-			{Key: "Role", Value: "Software Engineer"},
-			{Key: "Languages", Value: "Go, Odin, Typescript"},
-			{Key: "Work", Value: "Backend, Infrastructure, Systems"},
-			{Key: "Domains of interest", Value: "Graphics, Game Development"},
-			{Key: "Approach", Value: "Generalist"},
-		}, 60, ascii.Ocean, ascii.Amber)
-		return batch(sandwich(response), ascii.Prompt())
-
 	default:
 		return ascii.Unknown(command)
 	}

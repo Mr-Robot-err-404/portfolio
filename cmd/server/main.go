@@ -40,7 +40,7 @@ func main() {
 func makePresets() map[string][]byte {
 	presets := make(map[string][]byte)
 
-	ascii, err := os.ReadFile("static/mr_robot/elliot.ascii")
+	ascii, err := os.ReadFile("static/mr_robot/profile.ascii")
 	if err != nil {
 		panic(fmt.Sprintf("failed to load ascii file: %s", err.Error()))
 	}
