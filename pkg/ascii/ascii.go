@@ -22,7 +22,13 @@ type Stat struct {
 	Value string
 }
 
-func Table(rows []Stat, width int, primary, secondary string) []byte {
+type TableStyle struct {
+	Primary    string
+	Secondary  string
+	Background string
+}
+
+func Table(rows []Stat, width int, style TableStyle) []byte {
 	if width < 7 || len(rows) == 0 {
 		return nil
 	}
@@ -51,7 +57,7 @@ func Table(rows []Stat, width int, primary, secondary string) []byte {
 		return fmt.Sprintf(
 			"\x1b[%s;%sm%s%s",
 			foreground,
-			StatsBG,
+			style.Background,
 			text,
 			Reset,
 		)
@@ -63,7 +69,7 @@ func Table(rows []Stat, width int, primary, secondary string) []byte {
 				middle+
 				strings.Repeat("─", valueWidth)+
 				right,
-			primary,
+			style.Primary,
 		))
 
 		if newline {
@@ -73,24 +79,24 @@ func Table(rows []Stat, width int, primary, secondary string) []byte {
 	border("┌", "┬", "┐", true)
 
 	for i, row := range rows {
-		rowColor := primary
+		rowColor := style.Primary
 		if i%2 != 0 {
-			rowColor = secondary
+			rowColor = style.Secondary
 		}
 		keyPadding := keyWidth - utf8.RuneCountInString(row.Key) - 1
 		valuePadding := valueWidth - utf8.RuneCountInString(row.Value) - 1
 
-		out.WriteString(styled("│ ", primary))
+		out.WriteString(styled("│ ", style.Primary))
 		out.WriteString(styled(
 			row.Key+strings.Repeat(" ", keyPadding),
 			rowColor,
 		))
-		out.WriteString(styled("│ ", primary))
+		out.WriteString(styled("│ ", style.Primary))
 		out.WriteString(styled(
 			row.Value+strings.Repeat(" ", valuePadding),
 			rowColor,
 		))
-		out.WriteString(styled("│", primary))
+		out.WriteString(styled("│", style.Primary))
 		out.WriteString("\r\n")
 
 		if i < len(rows)-1 {

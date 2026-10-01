@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Mr-Robot-err-404/portfolio/pkg/ascii"
 	"github.com/gorilla/websocket"
 )
 
@@ -51,7 +52,30 @@ func makePresets() map[string][]byte {
 	}
 	presets[AboutCommand] = ascii
 	presets[ProjectsCommand] = []byte(projects)
+	presets[HelpCommand] = helpMenu()
 	return presets
+}
+
+func helpMenu() []byte {
+	result := strings.Builder{}
+	menu := ascii.Table([]ascii.Stat{
+		{Key: "about", Value: "Meet the person behind the terminal"},
+		{Key: "clear", Value: "Clear the terminal"},
+		{Key: "projects", Value: "Explore what I've built"},
+		{Key: "contact", Value: "Find me elsewhere"},
+	}, 60, ascii.TableStyle{
+		Primary:   ascii.Ocean,
+		Secondary: ascii.Amber,
+	})
+	result.WriteString(string(menu))
+	result.WriteString("\n\n")
+	result.WriteString("     ")
+	result.WriteString(fmt.Sprintf(
+		"%s -> %s",
+		ascii.Color("shell", ascii.Amber),
+		ascii.Color("connect to a real unix shell!", ascii.Amber),
+	))
+	return []byte(result.String())
 }
 
 func projectsAscii() (string, error) {

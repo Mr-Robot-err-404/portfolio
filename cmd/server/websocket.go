@@ -18,6 +18,7 @@ const (
 const (
 	AboutCommand    string = "about"
 	ClearCommand    string = "clear"
+	HelpCommand     string = "help"
 	ProjectsCommand string = "projects"
 )
 

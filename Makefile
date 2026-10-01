@@ -4,6 +4,9 @@ build:
 	mkdir -p bin
 	go build -o bin/portfolio ./cmd/server
 
+vet:
+	go vet ./...
+
 server: build
 	./bin/portfolio
 

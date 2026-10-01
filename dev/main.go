@@ -134,7 +134,11 @@ func stats() {
 		{Key: "Work", Value: "Backend, Infrastructure, Systems"},
 		{Key: "Domains of interest", Value: "Graphics, Game Development"},
 		{Key: "Approach", Value: "Generalist"},
-	}, 60, ascii.Ocean, ascii.Amber)
+	}, 60, ascii.TableStyle{
+		Primary:    ascii.Ocean,
+		Secondary:  ascii.Amber,
+		Background: ascii.StatsBG,
+	})
 
 	if err := os.WriteFile("stats.ascii", stats, 0o644); err != nil {
 		log.Fatal(err)
