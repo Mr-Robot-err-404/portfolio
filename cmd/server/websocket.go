@@ -16,9 +16,9 @@ const (
 )
 
 const (
-	AboutCommand string = "about"
-	ClearCommand string = "clear"
-	StatsCommand string = "stats"
+	AboutCommand    string = "about"
+	ClearCommand    string = "clear"
+	ProjectsCommand string = "projects"
 )
 
 type ClientMessage struct {
