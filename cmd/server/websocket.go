@@ -107,7 +107,7 @@ func prependLine(payload []byte) []byte {
 	return append([]byte("\n"), payload...)
 }
 func appendLine(payload []byte) []byte {
-	return append(payload, []byte("\n")...)
+	return append(payload, '\n')
 }
 func sandwich(payload []byte) []byte {
 	return appendLine(prependLine(payload))

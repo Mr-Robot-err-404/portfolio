@@ -138,6 +138,7 @@ func stats() {
 		Primary:    ascii.Ocean,
 		Secondary:  ascii.Amber,
 		Background: ascii.StatsBG,
+		Border:     ascii.Ocean,
 	})
 
 	if err := os.WriteFile("stats.ascii", stats, 0o644); err != nil {

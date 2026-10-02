@@ -57,25 +57,26 @@ func makePresets() map[string][]byte {
 }
 
 func helpMenu() []byte {
-	result := strings.Builder{}
 	menu := ascii.Table([]ascii.Stat{
 		{Key: "about", Value: "Meet the person behind the terminal"},
-		{Key: "clear", Value: "Clear the terminal"},
-		{Key: "projects", Value: "Explore what I've built"},
 		{Key: "contact", Value: "Find me elsewhere"},
+		{Key: "projects", Value: "Explore what I've built"},
+		{Key: "clear", Value: "Clear the terminal"},
 	}, 60, ascii.TableStyle{
-		Primary:   ascii.Ocean,
-		Secondary: ascii.Amber,
+		Primary:   ascii.Amber,
+		Secondary: ascii.Ocean,
+		Border:    ascii.Ocean,
 	})
-	result.WriteString(string(menu))
-	result.WriteString("\n\n")
-	result.WriteString("     ")
-	result.WriteString(fmt.Sprintf(
-		"%s -> %s",
+	menu = appendLine(menu)
+	menu = appendLine(menu)
+
+	add := []byte(fmt.Sprintf(
+		"      %s -> %s",
 		ascii.Color("shell", ascii.Amber),
 		ascii.Color("connect to a real unix shell!", ascii.Amber),
 	))
-	return []byte(result.String())
+	menu = append(menu, add...)
+	return menu
 }
 
 func projectsAscii() (string, error) {
