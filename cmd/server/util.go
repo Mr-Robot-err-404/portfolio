@@ -1,7 +1,5 @@
 package main
 
-import "bytes"
-
 func batch(payloads ...[]byte) []byte {
 	var total int
 
@@ -15,12 +13,10 @@ func batch(payloads ...[]byte) []byte {
 	}
 	return result
 }
-func addNote(p []byte, note []byte) []byte {
-	p = append(p, bytes.Repeat([]byte("-"), 50)...)
+func title(msg string) []byte {
+	p := []byte{}
 	p = appendLine(p)
-	p = append(p, note...)
-	p = appendLine(p)
-	p = append(p, bytes.Repeat([]byte("-"), 50)...)
+	p = append(p, []byte(msg)...)
 	p = appendLine(p)
 	return p
 }

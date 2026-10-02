@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -9,26 +8,32 @@ import (
 )
 
 func helpMenu() []byte {
-	menu := ascii.Table([]ascii.Stat{
+	menu := title(ascii.ColorWithAnsi("  COMMAND    DESCRIPTION", ascii.Ocean))
+
+	table := ascii.Table([]ascii.Stat{
 		{Key: "about", Value: "Meet the person behind the terminal"},
 		{Key: "contact", Value: "Find me elsewhere"},
 		{Key: "projects", Value: "Explore what I've built"},
 		{Key: "clear", Value: "Clear the terminal"},
+		{Key: "help", Value: "Display this help menu"},
 	}, 60, ascii.TableStyle{
 		Primary:   ascii.Amber,
 		Secondary: ascii.Ocean,
 		Border:    ascii.Ocean,
 	})
+	menu = append(menu, table...)
 	menu = appendLine(menu)
 	menu = appendLine(menu)
 
-	note := []byte(fmt.Sprintf(
-		"  \x1b[%s  → %s%s",
-		ascii.ColorWithAnsi("connect", ascii.Orange),
-		ascii.ColorWithAnsi("Gain access to your own unix shell!", ascii.Amber),
-		ascii.Reset,
-	))
-	menu = addNote(menu, note)
+	highlight := ascii.Table(
+		[]ascii.Stat{{Key: "connect ", Value: "Gain access to your own unix shell!"}},
+		60,
+		ascii.TableStyle{
+			Primary: ascii.Ocean,
+			Border:  ascii.Amber,
+		})
+	menu = append(menu, highlight...)
+	menu = appendLine(menu)
 	return menu
 }
 

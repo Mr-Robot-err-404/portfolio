@@ -14,6 +14,9 @@ func Color(msg string, color string) string {
 func ColorWithAnsi(msg string, color string) string {
 	return fmt.Sprintf("\x1b[%sm%s%s", color, msg, Reset)
 }
+func OpenAnsi(color string) string {
+	return fmt.Sprintf("\x1b[%sm", color)
+}
 func Prompt() []byte {
 	user := Color("visitor@portfolio", Green)
 	return fmt.Appendf(nil, "%s:~ %s ", user, Color(Shell, Blue))
