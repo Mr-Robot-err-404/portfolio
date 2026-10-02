@@ -55,6 +55,7 @@
  * @property {(data: string) => void} write
  * @property {(data: string) => void} writeln
  * @property {() => void} clear
+ * @property {(handler: (event: KeyboardEvent) => boolean) => void} attachCustomKeyEventHandler
  * @property {(handler: (data: string) => void) => Disposable} onData
  */
 

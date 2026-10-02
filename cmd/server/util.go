@@ -1,5 +1,20 @@
 package main
 
+import (
+	"fmt"
+	"github.com/Mr-Robot-err-404/portfolio/pkg/ascii"
+)
+
+func (server *Server) startup() []byte {
+	return fmt.Appendf(
+		nil,
+		"%s\n\r%s%s",
+		ascii.Color("PORTFOLIO / SYSTEM ONLINE", ascii.Green),
+		server.presets[HelpCommand],
+		ascii.Prompt(),
+	)
+}
+
 func batch(payloads ...[]byte) []byte {
 	var total int
 

@@ -2,9 +2,10 @@ package ascii
 
 import "fmt"
 
-func Startup() []byte {
-	return fmt.Appendf(nil, "%s\n\n\r%s", Color("PORTFOLIO / SYSTEM ONLINE", Green), Prompt())
+func ClearLine() []byte {
+	return fmt.Appendf(nil, "\r\x1b[2K%s", Prompt())
 }
+
 func ClearAll() []byte {
 	return fmt.Appendf(nil, "%s%s", Clear, Prompt())
 }

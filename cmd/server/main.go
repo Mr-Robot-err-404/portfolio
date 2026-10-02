@@ -12,6 +12,7 @@ import (
 type Server struct {
 	upgrader *websocket.Upgrader
 	presets  map[string][]byte
+	history  []string
 }
 
 func newServer() *Server {

@@ -58,10 +58,48 @@ let buffer = "";
 function sendInput(buf) {
   const payload = JSON.stringify({
     event: "input",
-    command: buf
+    command: buf,
   });
   socket.send(payload);
 }
+
+/**
+ * @param {string} keypress
+ */
+function sendKeypress(keypress) {
+  const payload = JSON.stringify({
+    event: "keypress",
+    keypress,
+  });
+  socket.send(payload);
+}
+
+terminal.attachCustomKeyEventHandler((event) => {
+  if (!/^[a-z]$/i.test(event.key)) {
+    console.log("terminal key", {
+      key: event.key,
+      code: event.code,
+      type: event.type,
+    });
+  }
+  if (event.type !== "keydown" && event.type !== "keyup") return true;
+
+  switch (event.key) {
+    case "ArrowUp":
+      sendKeypress("up");
+      return false;
+
+    case "ArrowDown":
+      sendKeypress("down");
+      return false;
+
+    case "Backspace":
+      sendKeypress("backspace");
+      return false;
+    default:
+      return true;
+  }
+});
 
 terminal.onData((data) => {
   switch (data) {
