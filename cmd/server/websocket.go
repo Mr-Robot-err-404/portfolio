@@ -89,26 +89,3 @@ func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
-
-func batch(payloads ...[]byte) []byte {
-	var total int
-
-	for _, payload := range payloads {
-		total += len(payload)
-	}
-	result := make([]byte, 0, total)
-
-	for _, payload := range payloads {
-		result = append(result, payload...)
-	}
-	return result
-}
-func prependLine(payload []byte) []byte {
-	return append([]byte("\n"), payload...)
-}
-func appendLine(payload []byte) []byte {
-	return append(payload, '\n')
-}
-func sandwich(payload []byte) []byte {
-	return appendLine(prependLine(payload))
-}
