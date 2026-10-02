@@ -75,14 +75,7 @@ function sendKeypress(keypress) {
 }
 
 terminal.attachCustomKeyEventHandler((event) => {
-  if (!/^[a-z]$/i.test(event.key)) {
-    console.log("terminal key", {
-      key: event.key,
-      code: event.code,
-      type: event.type,
-    });
-  }
-  if (event.type !== "keydown" && event.type !== "keyup") return true;
+  if (event.type !== "keydown") return true;
 
   switch (event.key) {
     case "ArrowUp":
@@ -94,8 +87,12 @@ terminal.attachCustomKeyEventHandler((event) => {
       return false;
 
     case "Backspace":
-      sendKeypress("backspace");
+      if (buffer) {
+        buffer = buffer.slice(0, -1);
+        terminal.write("\b \b");
+      }
       return false;
+
     default:
       return true;
   }
@@ -108,6 +105,7 @@ terminal.onData((data) => {
       buffer = "";
       break;
 
+    case "\b":
     case "\u007f":
       if (!buffer) return;
       buffer = buffer.slice(0, -1);
