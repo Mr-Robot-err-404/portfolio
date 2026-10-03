@@ -39,6 +39,7 @@
  * @property {string} [fontFamily]
  * @property {number} [fontSize]
  * @property {number} [lineHeight]
+ * @property {boolean} [convertEol]
  * @property {TerminalTheme} [theme]
  */
 
@@ -50,6 +51,7 @@
 
 /**
  * @typedef {Object} TerminalInstance
+ * @property {TerminalOptions} options
  * @property {(addon: TerminalAddon) => void} loadAddon
  * @property {(element: HTMLElement) => void} open
  * @property {(data: string) => void} write

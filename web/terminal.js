@@ -50,7 +50,40 @@ socket.addEventListener("message", async (event) => {
 socket.addEventListener("error", () => terminal.writeln("WebSocket error"));
 socket.addEventListener("close", () => terminal.writeln("WebSocket closed"));
 
+const promptText = "\x1b[32mvisitor@portfolio\x1b[0m:~ \x1b[34m❯\x1b[0m ";
 let buffer = "";
+
+class CommandHistory {
+  constructor() {
+    /** @type {string[]} */
+    this.list = [];
+    this.idx = 0;
+    this.draft = "";
+  }
+
+  /** @param {string} command */
+  append(command) {
+    if (command && this.list.at(-1) !== command) this.list.push(command);
+    this.idx = this.list.length;
+    this.draft = "";
+  }
+
+  /** @param {string} current */
+  previous(current) {
+    if (!this.list.length) return null;
+    if (this.idx === this.list.length) this.draft = current;
+    this.idx = Math.max(0, this.idx - 1);
+    return this.list[this.idx];
+  }
+
+  next() {
+    if (!this.list.length || this.idx === this.list.length) return null;
+    this.idx++;
+    return this.idx === this.list.length ? this.draft : this.list[this.idx];
+  }
+}
+
+const commandHistory = new CommandHistory();
 
 /**
  * @param {string} buf
@@ -63,15 +96,8 @@ function sendInput(buf) {
   socket.send(payload);
 }
 
-/**
- * @param {string} keypress
- */
-function sendKeypress(keypress) {
-  const payload = JSON.stringify({
-    event: "keypress",
-    keypress,
-  });
-  socket.send(payload);
+function redrawInput() {
+  terminal.write(`\r\x1b[2K${promptText}${buffer}`);
 }
 
 terminal.attachCustomKeyEventHandler((event) => {
@@ -79,11 +105,13 @@ terminal.attachCustomKeyEventHandler((event) => {
 
   switch (event.key) {
     case "ArrowUp":
-      sendKeypress("up");
+      buffer = commandHistory.previous(buffer) ?? buffer;
+      redrawInput();
       return false;
 
     case "ArrowDown":
-      sendKeypress("down");
+      buffer = commandHistory.next() ?? buffer;
+      redrawInput();
       return false;
 
     case "Backspace":
@@ -101,6 +129,7 @@ terminal.attachCustomKeyEventHandler((event) => {
 terminal.onData((data) => {
   switch (data) {
     case "\r":
+      commandHistory.append(buffer);
       sendInput(buffer);
       buffer = "";
       break;
