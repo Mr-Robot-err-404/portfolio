@@ -39,6 +39,13 @@ const socket = new WebSocket(`${protocol}//${location.host}/shell`);
 
 socket.binaryType = "arraybuffer";
 
+socket.addEventListener("open", () => {
+  socket.send(JSON.stringify({
+    event: "resize",
+    resize: { cols: terminal.cols, rows: terminal.rows },
+  }));
+});
+
 socket.addEventListener("message", async (event) => {
   if (typeof event.data === "string") {
     terminal.write(event.data);
