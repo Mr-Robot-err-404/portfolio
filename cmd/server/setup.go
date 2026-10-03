@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -37,27 +38,36 @@ func helpMenu() []byte {
 	return menu
 }
 
+func profileAscii() []byte {
+	b, err := os.ReadFile("static/mr_robot/profile.ascii")
+	if err != nil {
+		panic(fmt.Sprintf("failed to load ascii file: %s", err.Error()))
+	}
+	b = append(b, []byte(ascii.Reset)...)
+	return b
+}
+
 func projectsAscii() (string, error) {
-	ascii := strings.Builder{}
+	str := strings.Builder{}
 
 	b, err := os.ReadFile("static/banners/perkins.ascii")
 	if err != nil {
 		return "", err
 	}
-	ascii.WriteString(string(b))
+	str.WriteString(string(b))
 
 	b, err = os.ReadFile("static/banners/tinyrenderer.ascii")
 	if err != nil {
 		return "", err
 	}
-	ascii.WriteString("\n")
-	ascii.WriteString(string(b))
+	str.WriteString("\n")
+	str.WriteString(string(b))
 
 	b, err = os.ReadFile("static/banners/wireframe.ascii")
 	if err != nil {
 		return "", err
 	}
-	ascii.WriteString("\n")
-	ascii.WriteString(string(b))
-	return ascii.String(), nil
+	str.WriteString("\n")
+	str.WriteString(string(b))
+	return str.String(), nil
 }

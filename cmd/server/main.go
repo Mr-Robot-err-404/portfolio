@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/websocket"
 )
@@ -36,15 +35,11 @@ func main() {
 func makePresets() map[string][]byte {
 	presets := make(map[string][]byte)
 
-	ascii, err := os.ReadFile("static/mr_robot/profile.ascii")
-	if err != nil {
-		panic(fmt.Sprintf("failed to load ascii file: %s", err.Error()))
-	}
 	projects, err := projectsAscii()
 	if err != nil {
 		panic(fmt.Sprintf("failed to load ascii file: %s", err.Error()))
 	}
-	presets[AboutCommand] = ascii
+	presets[AboutCommand] = profileAscii()
 	presets[ProjectsCommand] = []byte(projects)
 	presets[HelpCommand] = helpMenu()
 	return presets
