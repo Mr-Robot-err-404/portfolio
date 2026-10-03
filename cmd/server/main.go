@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Mr-Robot-err-404/portfolio/pkg/ascii"
 	"github.com/gorilla/websocket"
 )
 
@@ -12,12 +13,14 @@ type Server struct {
 	upgrader *websocket.Upgrader
 	presets  map[string][]byte
 	history  []string
+	spinner  ascii.Spinner
 }
 
 func newServer() *Server {
 	return &Server{
 		upgrader: &websocket.Upgrader{},
 		presets:  makePresets(),
+		spinner:  ascii.MakeSpinner(3),
 	}
 }
 
