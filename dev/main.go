@@ -38,6 +38,20 @@ func main() {
 			usage()
 		}
 		replace(os.Args[2], os.Args[3], os.Args[4])
+	case "inspect":
+		if len(os.Args) != 4 {
+			usage()
+		}
+		count, err := strconv.Atoi(os.Args[3])
+		if err != nil || count < 0 {
+			usage()
+		}
+		inspect(os.Args[2], count)
+	case "move-reset":
+		if len(os.Args) != 4 {
+			usage()
+		}
+		moveReset(os.Args[2], os.Args[3])
 	default:
 		usage()
 	}
@@ -50,5 +64,7 @@ func usage() {
 	fmt.Fprintln(os.Stderr, "  go run ./dev stitch <first> <second> <output> <gap>")
 	fmt.Fprintln(os.Stderr, "  go run ./dev colors <file>")
 	fmt.Fprintln(os.Stderr, "  go run ./dev replace <old> <new> <file>")
+	fmt.Fprintln(os.Stderr, "  go run ./dev inspect <file> <n>")
+	fmt.Fprintln(os.Stderr, "  go run ./dev move-reset <input> <output>")
 	os.Exit(2)
 }
