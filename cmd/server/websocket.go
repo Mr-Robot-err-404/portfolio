@@ -1,12 +1,10 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/Mr-Robot-err-404/portfolio/pkg/ascii"
 	"github.com/gorilla/websocket"
@@ -41,9 +39,14 @@ type Resize struct {
 	Rows int `json:"rows"`
 	Cols int `json:"cols"`
 }
+type Dimensions struct {
+	width  int
+	height int
+}
 type ClientState struct {
-	shell bool
-	conn  *websocket.Conn
+	shell      bool
+	conn       *websocket.Conn
+	dimensions Dimensions
 }
 
 func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
@@ -55,8 +58,7 @@ func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 	flush(conn, server.startup())
 
-	state := ClientState{conn: conn}
-
+	client := ClientState{conn: conn}
 	for {
 		messageType, data, err := conn.ReadMessage()
 		if err != nil {
@@ -74,9 +76,15 @@ func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 		}
 		switch message.Event {
 		case ResizeEvent:
+			if message.Resize == nil {
+				continue
+			}
+			client.dimensions.width = message.Resize.Cols
+			client.dimensions.height = message.Resize.Rows
+
 		case KeypressEvent:
 		case InputEvent:
-			flush(conn, server.parseInput(message.Command, &state))
+			flush(conn, server.parseInput(message.Command, &client))
 		}
 	}
 }
@@ -103,22 +111,6 @@ func (server *Server) parseInput(input *string, client *ClientState) []byte {
 	case ClearCommand:
 		return ascii.ClearAll()
 	case ConnectCommand:
-		ptmx, err := spawnShell()
-		if err != nil {
-			fmt.Println("failed to spawn container: %w", err)
-			return batch(sandwich([]byte("Failed to connect to remote shell session")), ascii.Prompt())
-		}
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
-		defer cancel()
-
-		go func() {
-			<-ctx.Done()
-			ptmx.Close()
-		}()
-		go receiveShellOutput(ptmx, client.conn)
-
-		client.shell = true
-		fmt.Println("connected to shell session")
 		return nil
 	default:
 		return ascii.Unknown(command)
