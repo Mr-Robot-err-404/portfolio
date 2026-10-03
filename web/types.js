@@ -52,6 +52,8 @@
 /**
  * @typedef {Object} TerminalInstance
  * @property {TerminalOptions} options
+ * @property {number} cols
+ * @property {number} rows
  * @property {(addon: TerminalAddon) => void} loadAddon
  * @property {(element: HTMLElement) => void} open
  * @property {(data: string) => void} write

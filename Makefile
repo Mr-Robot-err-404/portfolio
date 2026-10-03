@@ -1,4 +1,4 @@
-.PHONY: build server cli
+.PHONY: build vet image server cli
 
 build:
 	mkdir -p bin
@@ -7,7 +7,10 @@ build:
 vet:
 	go vet ./...
 
-server: build
+image:
+	podman pull alpine:latest
+
+server: build image
 	./bin/portfolio
 
 cli:

@@ -59,6 +59,7 @@ socket.addEventListener("close", () => terminal.writeln("WebSocket closed"));
 
 const promptText = "\x1b[32mvisitor@portfolio\x1b[0m:~ \x1b[34m❯\x1b[0m ";
 let buffer = "";
+let shell = false;
 
 class CommandHistory {
   constructor() {
@@ -108,7 +109,7 @@ function redrawInput() {
 }
 
 terminal.attachCustomKeyEventHandler((event) => {
-  if (event.type !== "keydown") return true;
+  if (shell || event.type !== "keydown") return true;
 
   switch (event.key) {
     case "ArrowUp":
@@ -134,10 +135,16 @@ terminal.attachCustomKeyEventHandler((event) => {
 });
 
 terminal.onData((data) => {
+  if (shell) {
+    socket.send(JSON.stringify({ event: "keypress", keypress: data }));
+    return;
+  }
+
   switch (data) {
     case "\r":
       commandHistory.append(buffer);
       sendInput(buffer);
+      if (buffer.trim().toLowerCase() === "connect") shell = true;
       buffer = "";
       break;
 

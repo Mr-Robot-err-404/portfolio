@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/Mr-Robot-err-404/portfolio/pkg/ascii"
@@ -44,7 +45,7 @@ type Dimensions struct {
 	height int
 }
 type ClientState struct {
-	shell      bool
+	shell      *os.File
 	conn       *websocket.Conn
 	dimensions Dimensions
 }
@@ -59,6 +60,7 @@ func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 	flush(conn, server.startup())
 
 	client := ClientState{conn: conn}
+
 	for {
 		messageType, data, err := conn.ReadMessage()
 		if err != nil {
@@ -83,6 +85,14 @@ func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 			client.dimensions.height = message.Resize.Rows
 
 		case KeypressEvent:
+			if client.shell == nil {
+				continue
+			}
+			if message.Keypress == nil {
+				continue
+			}
+			writeToShell(client.shell, []byte(*message.Command))
+
 		case InputEvent:
 			flush(conn, server.parseInput(message.Command, &client))
 		}
@@ -93,7 +103,7 @@ func (server *Server) parseInput(input *string, client *ClientState) []byte {
 	if input == nil {
 		return []byte("Received corrupt payload")
 	}
-	if client.shell {
+	if client.shell != nil {
 		return batch(sandwich([]byte("Use Keypress events for shell sessions")), ascii.Prompt())
 	}
 	command := strings.TrimSpace(strings.ToLower(*input))
@@ -111,6 +121,15 @@ func (server *Server) parseInput(input *string, client *ClientState) []byte {
 	case ClearCommand:
 		return ascii.ClearAll()
 	case ConnectCommand:
+		flush(client.conn, sandwich([]byte("connecting")))
+
+		ptmx, err := spawnShell()
+		if err != nil {
+			fmt.Println(err)
+			return nil
+		}
+		go receiveShellOutput(ptmx, client.conn)
+		client.shell = ptmx
 		return nil
 	default:
 		return ascii.Unknown(command)

@@ -1,8 +1,6 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"os"
 	"os/exec"
 
@@ -21,18 +19,9 @@ func receiveShellOutput(ptmx *os.File, conn *websocket.Conn) {
 	}
 }
 
-func writeToShell(ctx context.Context, ptmx *os.File, ch <-chan []byte) {
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case msg := <-ch:
-			_, err := ptmx.Write(msg)
-			if err != nil {
-				fmt.Println("failed to write ptmx: %w", err)
-			}
-		}
-	}
+func writeToShell(ptmx *os.File, chunk []byte) error {
+	_, err := ptmx.Write(chunk)
+	return err
 }
 
 func spawnShell() (*os.File, error) {
