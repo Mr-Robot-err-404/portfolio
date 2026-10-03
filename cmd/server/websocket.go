@@ -91,7 +91,7 @@ func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 			if message.Keypress == nil {
 				continue
 			}
-			writeToShell(client.shell, []byte(*message.Command))
+			writeToShell(client.shell, []byte(*message.Keypress))
 
 		case InputEvent:
 			flush(conn, server.parseInput(message.Command, &client))
@@ -128,6 +128,8 @@ func (server *Server) parseInput(input *string, client *ClientState) []byte {
 			fmt.Println(err)
 			return nil
 		}
+		flush(client.conn, batch(ascii.ClearLine(), appendLine([]byte("connected"))))
+
 		go receiveShellOutput(ptmx, client.conn)
 		client.shell = ptmx
 		return nil
