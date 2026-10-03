@@ -20,7 +20,10 @@ func newServer() *Server {
 	return &Server{
 		upgrader: &websocket.Upgrader{},
 		presets:  makePresets(),
-		spinner:  ascii.MakeSpinner(3),
+		spinner: ascii.MakeSpinner(3, ascii.SpinnerTheme{
+			Inner: ascii.Amber,
+			Outer: ascii.Ocean,
+		}),
 	}
 }
 

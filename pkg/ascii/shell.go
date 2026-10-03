@@ -2,6 +2,8 @@ package ascii
 
 import "fmt"
 
+const OpenSequence = "\x1b["
+
 func ClearLine() []byte {
 	return fmt.Appendf(nil, "\r\x1b[2K%s", Prompt())
 }

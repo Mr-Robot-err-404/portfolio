@@ -1,8 +1,11 @@
 package ascii
 
 import (
+	"fmt"
 	"strings"
 )
+
+// NOTE: here's my own repo for reference -> https://github.com/Mr-Robot-err-404/tui-spinner
 
 const (
 	Base rune = 0x2800
@@ -53,7 +56,7 @@ var braiile_map = map[Coord]byte{
 	{col: 1, row: 3}: 7,
 }
 
-func Walk(s Spinner) Spinner {
+func (s Spinner) Walk() Spinner {
 	s.head = step(s.head, s.rotation.head)
 
 	for _, pos := range s.head {
@@ -144,7 +147,7 @@ func MakeSpinner(size int, theme SpinnerTheme) Spinner {
 			tail: make_tail_map(width, height, size),
 			head: make_head_map(width, height, size),
 		},
-		theme:  strip_theme(theme.Inner, theme.Outer),
+		theme:  normalize_theme(theme.Inner, theme.Outer),
 		offset: offset,
 	}
 }
@@ -162,14 +165,17 @@ func vertical_offset(size int) int {
 	return 0
 }
 
-func strip_theme(inner string, outer string) SpinnerTheme {
+func normalize_theme(inner string, outer string) SpinnerTheme {
 	return SpinnerTheme{
-		Inner: strip(inner),
-		Outer: strip(outer),
+		Inner: normalize(inner),
+		Outer: normalize(outer),
 	}
 }
 
-func strip(s string) string {
+func normalize(s string) string {
+	if strings.HasPrefix(s, OpenSequence) {
+		s = fmt.Sprintf("%s%s", OpenSequence, s)
+	}
 	idx := strings.Index(s, Reset)
 
 	if idx == -1 {

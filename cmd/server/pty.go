@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/creack/pty"
 	"github.com/gorilla/websocket"
@@ -31,6 +32,21 @@ func writeToShell(ctx context.Context, ptmx *os.File, ch <-chan []byte) {
 			if err != nil {
 				fmt.Println("failed to write ptmx: %w", err)
 			}
+		}
+	}
+}
+
+func (server *Server) loading(ctx context.Context, ch chan<- []byte) {
+	ticker := time.NewTicker(time.Second / 30)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			server.spinner = server.spinner.Walk()
+			ch <- []byte(server.spinner.Render_frame())
 		}
 	}
 }
