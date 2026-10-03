@@ -2,8 +2,39 @@ package main
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/Mr-Robot-err-404/portfolio/pkg/ascii"
 )
+
+var ShellCommands = map[string]struct{}{
+	"ls": {}, "cat": {}, "pwd": {}, "cd": {},
+	"echo": {}, "grep": {}, "find": {}, "head": {},
+	"tail": {}, "wc": {}, "sort": {}, "uniq": {},
+	"mkdir": {}, "touch": {}, "rm": {}, "cp": {},
+	"mv": {}, "chmod": {}, "whoami": {}, "date": {},
+	"ps": {}, "top": {}, "vi": {}, "vim": {},
+}
+
+func connectHint(command string) []byte {
+	var b []byte
+	b = fmt.Appendf(
+		b,
+		"'%s' requires a shell session.\n Run %s to start your own shell!",
+		command,
+		ascii.ColorWithAnsi("connect", ascii.Amber),
+	)
+	return b
+}
+
+func isShellCommand(command string) bool {
+	fields := strings.Fields(command)
+	if len(fields) == 0 {
+		return false
+	}
+	_, ok := ShellCommands[fields[0]]
+	return ok
+}
 
 func (server *Server) startup() []byte {
 	return fmt.Appendf(

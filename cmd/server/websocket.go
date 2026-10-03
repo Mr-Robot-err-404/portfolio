@@ -77,8 +77,15 @@ func (server *Server) parseInput(input *string) []byte {
 		return []byte("Received corrupt payload")
 	}
 	command := strings.TrimSpace(strings.ToLower(*input))
+
+	if len(command) == 0 {
+		return []byte{}
+	}
 	if response, ok := server.presets[command]; ok {
 		return batch(sandwich(response), ascii.Prompt())
+	}
+	if isShellCommand(command) {
+		return batch(sandwich(connectHint(command)), ascii.Prompt())
 	}
 	switch command {
 	case ClearCommand:
