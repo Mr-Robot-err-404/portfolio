@@ -8,7 +8,7 @@ vet:
 	go vet ./...
 
 image:
-	podman pull alpine:latest
+	podman pull alpine:3.22
 
 server: build image
 	./bin/portfolio

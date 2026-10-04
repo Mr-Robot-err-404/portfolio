@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/Mr-Robot-err-404/portfolio/pkg/ascii"
@@ -45,7 +44,7 @@ type Dimensions struct {
 	height int
 }
 type ClientState struct {
-	shell      *os.File
+	shell      *Shell
 	conn       *websocket.Conn
 	dimensions Dimensions
 }
@@ -60,6 +59,7 @@ func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 	flush(conn, server.startup())
 
 	client := ClientState{conn: conn}
+	defer client.cleanup()
 
 	for {
 		messageType, data, err := conn.ReadMessage()
@@ -91,7 +91,7 @@ func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 			if message.Keypress == nil {
 				continue
 			}
-			writeToShell(client.shell, []byte(*message.Keypress))
+			client.shell.write([]byte(*message.Keypress))
 
 		case InputEvent:
 			flush(conn, server.parseInput(message.Command, &client))
@@ -123,15 +123,15 @@ func (server *Server) parseInput(input *string, client *ClientState) []byte {
 	case ConnectCommand:
 		flush(client.conn, sandwich([]byte("connecting")))
 
-		ptmx, err := spawnShell()
+		shell, err := spawnShell()
 		if err != nil {
 			fmt.Println(err)
 			return nil
 		}
 		flush(client.conn, batch(ascii.ClearLine(), appendLine([]byte("connected"))))
 
-		go receiveShellOutput(ptmx, client.conn)
-		client.shell = ptmx
+		go shell.receiveShellOutput(client.conn)
+		client.shell = shell
 		return nil
 	default:
 		return ascii.Unknown(command)
@@ -143,4 +143,11 @@ func flush(conn *websocket.Conn, response []byte) {
 		fmt.Println(err)
 		return
 	}
+}
+
+func (client *ClientState) cleanup() {
+	if client.shell == nil {
+		return
+	}
+	try(client.shell.removeContainer)
 }
