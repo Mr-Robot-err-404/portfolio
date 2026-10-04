@@ -123,7 +123,7 @@ func (server *Server) parseInput(input *string, client *ClientState) []byte {
 	case ConnectCommand:
 		flush(client.conn, sandwich([]byte("connecting")))
 
-		shell, err := spawnShell()
+		shell, err := spawnShell(client.dimensions)
 		if err != nil {
 			fmt.Println(err)
 			return nil

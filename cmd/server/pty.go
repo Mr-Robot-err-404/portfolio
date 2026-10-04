@@ -38,16 +38,10 @@ func (shell *Shell) removeContainer() error {
 	return cmd.Run()
 }
 
-func try(fn func() error) {
-	if err := fn(); err != nil {
-		fmt.Println(err)
-	}
-}
-
-func spawnShell() (*Shell, error) {
+func spawnShell(dimensions Dimensions) (*Shell, error) {
 	name := nextContainerName()
 
-	cmd := exec.Command("podman", "run", "--rm", "-i",
+	cmd := exec.Command("podman", "run", "--rm", "-it",
 		fmt.Sprintf("--name=%s", name),
 		"--network=none",
 		"--memory=64m",
@@ -64,7 +58,10 @@ func spawnShell() (*Shell, error) {
 		"alpine:latest",
 		"/bin/sh",
 	)
-	ptmx, err := pty.Start(cmd)
+	ptmx, err := pty.StartWithSize(cmd, &pty.Winsize{
+		Rows: uint16(dimensions.height),
+		Cols: uint16(dimensions.width),
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -83,4 +80,10 @@ func nextContainerName() string {
 		os.Getpid(),
 		container.Add(1),
 	)
+}
+
+func try(fn func() error) {
+	if err := fn(); err != nil {
+		fmt.Println(err)
+	}
 }
