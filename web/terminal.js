@@ -144,7 +144,6 @@ terminal.onData((data) => {
     case "\r":
       commandHistory.append(buffer);
       sendInput(buffer);
-      if (buffer.trim().toLowerCase() === "connect") shell = true;
       buffer = "";
       break;
 

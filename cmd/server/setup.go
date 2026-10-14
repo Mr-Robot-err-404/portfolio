@@ -13,7 +13,7 @@ func helpMenu() []byte {
 
 	table := ascii.Table([]ascii.Stat{
 		{Key: "about", Value: "Meet the person behind the terminal"},
-		{Key: "contact", Value: "Find me elsewhere"},
+		{Key: "contact", Value: "GitHub and LinkedIn"},
 		{Key: "projects", Value: "Explore what I've built"},
 		{Key: "clear", Value: "Clear the terminal"},
 		{Key: "help", Value: "Display this help menu"},
@@ -36,6 +36,21 @@ func helpMenu() []byte {
 	menu = append(menu, highlight...)
 	menu = appendLine(menu)
 	return menu
+}
+
+func contactAscii() []byte {
+	header := title(ascii.ColorWithAnsi("  CONTACT", ascii.Ocean))
+
+	table := ascii.Table([]ascii.Stat{
+		{Key: "email", Value: "lawtonharry77@gmail.com"},
+		{Key: "github", Value: "github.com/Mr-Robot-err-404"},
+		{Key: "linkedin", Value: "www.linkedin.com/in/harry-lawton-aa22172b1"},
+	}, 60, ascii.TableStyle{
+		Primary:   ascii.Amber,
+		Secondary: ascii.Ocean,
+		Border:    ascii.Ocean,
+	})
+	return append(header, append(table, '\n')...)
 }
 
 func profileAscii() []byte {

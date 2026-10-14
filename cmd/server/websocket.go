@@ -19,6 +19,7 @@ const (
 const (
 	AboutCommand    string = "about"
 	ClearCommand    string = "clear"
+	ContactCommand  string = "contact"
 	HelpCommand     string = "help"
 	ProjectsCommand string = "projects"
 	ConnectCommand  string = "connect"
@@ -121,18 +122,20 @@ func (server *Server) parseInput(input *string, client *ClientState) []byte {
 	case ClearCommand:
 		return ascii.ClearAll()
 	case ConnectCommand:
-		flush(client.conn, sandwich([]byte("connecting")))
-
-		shell, err := spawnShell(client.dimensions)
-		if err != nil {
-			fmt.Println(err)
-			return nil
-		}
-		flush(client.conn, batch(ascii.ClearLine(), appendLine([]byte("connected"))))
-
-		go shell.receiveShellOutput(client.conn)
-		client.shell = shell
-		return nil
+		// flush(client.conn, sandwich([]byte("connecting")))
+		//
+		// shell, err := spawnShell(client.dimensions)
+		// if err != nil {
+		// 	fmt.Println(err)
+		// 	return nil
+		// }
+		// flush(client.conn, batch(ascii.ClearLine(), appendLine([]byte("connected"))))
+		//
+		// go shell.receiveShellOutput(client.conn)
+		// client.shell = shell
+		// return nil
+		msg := fmt.Appendf(nil, "Real shell sessions coming soon, with a CTF challenge included!")
+		return batch(sandwich(msg), ascii.Prompt())
 	default:
 		return ascii.Unknown(command)
 	}

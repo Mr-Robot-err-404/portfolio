@@ -42,6 +42,7 @@ func makePresets() map[string][]byte {
 		panic(fmt.Sprintf("failed to load ascii file: %s", err.Error()))
 	}
 	presets[AboutCommand] = profileAscii()
+	presets[ContactCommand] = contactAscii()
 	presets[ProjectsCommand] = []byte(projects)
 	presets[HelpCommand] = helpMenu()
 	return presets
