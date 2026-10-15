@@ -166,6 +166,8 @@ window.addEventListener("resize", () => fit.fit());
 const projectMedia = /** @type {NodeListOf<HTMLElement>} */ (
   document.querySelectorAll(".project-media[data-demo], .project-media[data-video]")
 );
+const mobileMedia = window.matchMedia("(max-width: 760px)");
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 for (const media of projectMedia) {
   function showDemo() {
@@ -209,8 +211,30 @@ for (const media of projectMedia) {
     demo?.remove();
   }
 
-  media.addEventListener("pointerenter", showDemo);
-  media.addEventListener("pointerleave", hideDemo);
-  media.addEventListener("focus", showDemo);
-  media.addEventListener("blur", hideDemo);
+  const observer = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) showDemo();
+    else hideDemo();
+  });
+
+  function updatePlayback() {
+    observer.disconnect();
+    hideDemo();
+    if (mobileMedia.matches && !reducedMotion.matches) observer.observe(media);
+  }
+
+  function showDesktopDemo() {
+    if (!mobileMedia.matches && !reducedMotion.matches) showDemo();
+  }
+
+  function hideDesktopDemo() {
+    if (!mobileMedia.matches) hideDemo();
+  }
+
+  media.addEventListener("pointerenter", showDesktopDemo);
+  media.addEventListener("pointerleave", hideDesktopDemo);
+  media.addEventListener("focus", showDesktopDemo);
+  media.addEventListener("blur", hideDesktopDemo);
+  mobileMedia.addEventListener("change", updatePlayback);
+  reducedMotion.addEventListener("change", updatePlayback);
+  updatePlayback();
 }
