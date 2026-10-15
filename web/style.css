@@ -93,8 +93,92 @@ h3 { font-size: clamp(25px, 3vw, 40px); }
 }
 
 @media (max-width: 760px) {
-  main { padding: 24px 18px 72px; }
-  .terminal-section { padding: 0 0 72px; }
-  .terminal-frame { height: clamp(400px, 70vh, 700px); padding: 18px; box-shadow: 7px 7px 0 color-mix(in srgb, var(--shadow) 18%, transparent); }
+  main { padding: 16px 14px 64px; }
+  .terminal-section { display: none; }
   .project-card { grid-template-columns: 1fr; }
+  .project-copy { padding: 18px; gap: 14px; }
+}
+
+.mobile-bio { display: none; }
+
+@media (max-width: 760px) {
+  .mobile-bio {
+    display: block;
+    margin-bottom: 72px;
+    border: 1px solid var(--muted);
+    box-shadow: 7px 7px 0 color-mix(in srgb, var(--shadow) 18%, transparent);
+  }
+
+  .mobile-bio-notice {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--muted);
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+
+  .mobile-bio-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .mobile-bio-name {
+    font-size: clamp(22px, 6vw, 32px);
+    line-height: 1.15;
+    color: var(--text);
+  }
+
+  .mobile-bio-name span {
+    display: block;
+    font-size: 13px;
+    color: var(--accent);
+    margin-top: 6px;
+  }
+
+  .mobile-bio-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 0 -16px;
+    width: calc(100% + 32px);
+  }
+
+  .mobile-bio-table tr + tr td {
+    border-top: 1px solid var(--muted);
+  }
+
+  .mobile-bio-table td {
+    padding: 8px 16px;
+    vertical-align: top;
+    line-height: 1.4;
+  }
+
+  .mobile-bio-table td:first-child {
+    width: 40%;
+    color: var(--shadow);
+    border-right: 1px solid var(--muted);
+  }
+
+  .mobile-bio-table td:last-child {
+    color: var(--text);
+  }
+
+  .mobile-bio-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  .mobile-bio-links a {
+    color: var(--text);
+    word-break: break-all;
+  }
+
+  .mobile-bio-links a:hover,
+  .mobile-bio-links a:focus-visible {
+    color: var(--accent);
+  }
 }
