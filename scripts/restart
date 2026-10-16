@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+chown -R portfolio:portfolio /opt/portfolio
+
+systemctl daemon-reload
+systemctl restart portfolio
+
+sleep 1
+systemctl --no-pager --lines=0 status portfolio

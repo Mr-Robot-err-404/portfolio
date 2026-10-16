@@ -1,4 +1,4 @@
-.PHONY: build vet image server cli v1
+.PHONY: build vet image server cli v1 hetzner deploy
 
 build:
 	mkdir -p bin
@@ -20,7 +20,7 @@ hetzner:
 	GOOS=linux GOARCH=amd64 go build -o bin/portfolio ./cmd/server
 
 deploy: 
-	rsync -avz --delete bin/portfolio web static root@schultz:/opt/portfolio/
+	rsync -avz --delete bin/portfolio web static scripts root@schultz:/opt/portfolio/
 
 cli:
 	go run ./cmd/cli

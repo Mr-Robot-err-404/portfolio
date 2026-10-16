@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+chown -R portfolio:portfolio /opt/portfolio
+
+systemctl enable --now portfolio
+systemctl enable --now caddy
+
+systemctl --no-pager --lines=0 status portfolio caddy

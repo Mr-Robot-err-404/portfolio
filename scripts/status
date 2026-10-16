@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+systemctl --no-pager --lines=0 status portfolio caddy || true
+
+echo
+ss -tlnp | grep -E ':(22|80|443|4242)' || true
+
+echo
+curl -sS -o /dev/null -w 'https://doctorschultz.dev -> %{http_code}\n' https://doctorschultz.dev
