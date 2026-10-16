@@ -3,9 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
+	"net"
 	"net/http"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/Mr-Robot-err-404/portfolio/pkg/ascii"
@@ -59,11 +62,44 @@ type ClientState struct {
 	conn       *websocket.Conn
 	dimensions Dimensions
 	writeMu    sync.Mutex
+	id         uint64
+	expired    atomic.Bool
+	commands   atomic.Uint64
+}
+
+func (client *ClientState) closeReason() string {
+	if client.expired.Load() {
+		return "timeout"
+	}
+	return "disconnected"
+}
+
+var session atomic.Uint64
+
+func nextSessionID() uint64 {
+	return session.Add(1)
+}
+
+func clientAddr(r *http.Request) string {
+	if forwarded := r.Header.Get("X-Forwarded-For"); forwarded != "" {
+		if comma := strings.IndexByte(forwarded, ','); comma != -1 {
+			return strings.TrimSpace(forwarded[:comma])
+		}
+		return strings.TrimSpace(forwarded)
+	}
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr
+	}
+	return host
 }
 
 func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
+	addr := clientAddr(r)
+
 	if server.connections.Add(1) > MaxConnections {
 		server.connections.Add(-1)
+		slog.Warn("connection rejected", "addr", addr, "reason", "limit reached")
 		http.Error(w, "too many connections", http.StatusServiceUnavailable)
 		return
 	}
@@ -72,11 +108,21 @@ func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 	conn, err := server.upgrader.Upgrade(w, r, nil)
 
 	if err != nil {
+		slog.Warn("upgrade failed", "addr", addr, "error", err)
 		return
 	}
 	defer conn.Close()
 
-	client := ClientState{conn: conn}
+	id := nextSessionID()
+	started := time.Now()
+
+	slog.Info("session opened",
+		"id", id,
+		"addr", addr,
+		"active", server.connections.Load(),
+	)
+
+	client := ClientState{conn: conn, id: id}
 	defer client.cleanup()
 
 	conn.SetReadLimit(ReadLimit)
@@ -93,9 +139,20 @@ func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		select {
 		case <-deadline:
+			client.expired.Store(true)
 			conn.Close()
 		case <-done:
 		}
+	}()
+
+	defer func() {
+		slog.Info("session closed",
+			"id", id,
+			"addr", addr,
+			"reason", client.closeReason(),
+			"duration", time.Since(started).Round(time.Second).String(),
+			"commands", client.commands.Load(),
+		)
 	}()
 
 	client.flush(server.startup())
@@ -106,13 +163,13 @@ func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if messageType != websocket.TextMessage {
-			fmt.Printf("received unexpected messageType: %d", messageType)
+			slog.Debug("unexpected message type", "id", id, "type", messageType)
 			continue
 		}
 		var message ClientMessage
 
 		if err = json.Unmarshal(data, &message); err != nil {
-			fmt.Printf("unmarshal failure: %s", data)
+			slog.Debug("unmarshal failure", "id", id, "bytes", len(data))
 			continue
 		}
 		switch message.Event {
@@ -133,6 +190,7 @@ func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 			client.shell.write([]byte(*message.Keypress))
 
 		case InputEvent:
+			client.commands.Add(1)
 			client.flush(server.parseInput(message.Command, &client))
 		}
 	}
@@ -186,7 +244,7 @@ func (client *ClientState) flush(response []byte) {
 	client.conn.SetWriteDeadline(time.Now().Add(WriteWait))
 
 	if err := client.conn.WriteMessage(websocket.BinaryMessage, response); err != nil {
-		fmt.Println(err)
+		slog.Debug("write failed", "id", client.id, "error", err)
 		return
 	}
 }

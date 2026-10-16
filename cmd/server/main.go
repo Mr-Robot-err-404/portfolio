@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 	"sync/atomic"
 	"time"
 
@@ -29,6 +30,10 @@ func newServer() *Server {
 }
 
 func main() {
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level: logLevel(),
+	})))
+
 	server := newServer()
 
 	mux := http.NewServeMux()
@@ -45,8 +50,15 @@ func main() {
 		IdleTimeout:       60 * time.Second,
 	}
 
-	log.Println("portfolio available at http://localhost:4242")
-	log.Fatal(httpServer.ListenAndServe())
+	slog.Info("portfolio listening", "addr", httpServer.Addr, "maxConnections", MaxConnections)
+	slog.Error("server stopped", "error", httpServer.ListenAndServe())
+}
+
+func logLevel() slog.Level {
+	if os.Getenv("DEBUG") != "" {
+		return slog.LevelDebug
+	}
+	return slog.LevelInfo
 }
 
 func makePresets() map[string][]byte {
