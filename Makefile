@@ -16,5 +16,11 @@ server: build image
 v1: build
 	./bin/portfolio
 
+hetzner: 
+	GOOS=linux GOARCH=amd64 go build -o bin/portfolio ./cmd/server
+
+deploy: 
+	rsync -avz --delete bin/portfolio web static root@schultz:/opt/portfolio/
+
 cli:
 	go run ./cmd/cli
