@@ -81,7 +81,9 @@ h3 { font-size: clamp(25px, 3vw, 40px); }
 .project-copy { display: flex; flex-direction: column; gap: 24px; padding: 32px; }
 .project-meta { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: auto; }
 .project-copy p { color: var(--muted); }
-.project-language { display: block; width: auto; height: 28px; max-width: 96px; object-fit: contain; }
+.project-language { display: inline-block; padding: 5px 10px; border: 1px solid currentColor; font-size: 14px; line-height: 1; letter-spacing: .04em; }
+.project-language-go { color: #65c8dc; }
+.project-language-odin { color: #7e9cd8; }
 .project-source { display: flex; align-items: center; gap: 16px; margin-left: auto; white-space: nowrap; }
 .project-stars { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 1em; line-height: 1; }
 .project-stars svg { width: 1em; height: 1em; fill: currentColor; }
