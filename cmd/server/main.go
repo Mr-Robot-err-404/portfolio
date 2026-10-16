@@ -5,20 +5,25 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync/atomic"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
 
+const MaxConnections int64 = 128
+
 type Server struct {
-	ctx      context.Context
-	upgrader *websocket.Upgrader
-	presets  map[string][]byte
+	ctx         context.Context
+	upgrader    *websocket.Upgrader
+	presets     map[string][]byte
+	connections atomic.Int64
 }
 
 func newServer() *Server {
 	return &Server{
 		ctx:      context.Background(),
-		upgrader: &websocket.Upgrader{},
+		upgrader: &websocket.Upgrader{HandshakeTimeout: 10 * time.Second},
 		presets:  makePresets(),
 	}
 }
@@ -26,12 +31,22 @@ func newServer() *Server {
 func main() {
 	server := newServer()
 
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	http.Handle("/", http.FileServer(http.Dir("web")))
-	http.HandleFunc("/shell", server.websocket)
+	mux := http.NewServeMux()
+	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	mux.Handle("/", http.FileServer(http.Dir("web")))
+	mux.HandleFunc("/shell", server.websocket)
+
+	httpServer := &http.Server{
+		Addr:              ":4242",
+		Handler:           mux,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
 
 	log.Println("portfolio available at http://localhost:4242")
-	log.Fatal(http.ListenAndServe(":4242", nil))
+	log.Fatal(httpServer.ListenAndServe())
 }
 
 func makePresets() map[string][]byte {

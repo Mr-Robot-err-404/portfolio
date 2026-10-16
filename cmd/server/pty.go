@@ -7,7 +7,6 @@ import (
 	"sync/atomic"
 
 	"github.com/creack/pty"
-	"github.com/gorilla/websocket"
 )
 
 type Shell struct {
@@ -16,14 +15,14 @@ type Shell struct {
 	name string
 }
 
-func (shell *Shell) receiveShellOutput(conn *websocket.Conn) {
+func (shell *Shell) receiveShellOutput(client *ClientState) {
 	buf := make([]byte, 1024)
 	for {
 		n, err := shell.ptmx.Read(buf)
 		if err != nil {
 			return
 		}
-		conn.WriteMessage(websocket.BinaryMessage, buf[:n])
+		client.flush(buf[:n])
 	}
 }
 

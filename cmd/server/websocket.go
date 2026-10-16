@@ -5,9 +5,19 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/Mr-Robot-err-404/portfolio/pkg/ascii"
 	"github.com/gorilla/websocket"
+)
+
+const (
+	ReadLimit    int64         = 4096
+	PongWait     time.Duration = 90 * time.Second
+	PingInterval time.Duration = 30 * time.Second
+	WriteWait    time.Duration = 10 * time.Second
+	SessionLimit time.Duration = 15 * time.Minute
 )
 
 const (
@@ -48,19 +58,47 @@ type ClientState struct {
 	shell      *Shell
 	conn       *websocket.Conn
 	dimensions Dimensions
+	writeMu    sync.Mutex
 }
 
 func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
+	if server.connections.Add(1) > MaxConnections {
+		server.connections.Add(-1)
+		http.Error(w, "too many connections", http.StatusServiceUnavailable)
+		return
+	}
+	defer server.connections.Add(-1)
+
 	conn, err := server.upgrader.Upgrade(w, r, nil)
 
 	if err != nil {
 		return
 	}
 	defer conn.Close()
-	flush(conn, server.startup())
 
 	client := ClientState{conn: conn}
 	defer client.cleanup()
+
+	conn.SetReadLimit(ReadLimit)
+	conn.SetReadDeadline(time.Now().Add(PongWait))
+	conn.SetPongHandler(func(string) error {
+		return conn.SetReadDeadline(time.Now().Add(PongWait))
+	})
+
+	done := make(chan struct{})
+	defer close(done)
+	go client.keepalive(done)
+
+	deadline := time.After(SessionLimit)
+	go func() {
+		select {
+		case <-deadline:
+			conn.Close()
+		case <-done:
+		}
+	}()
+
+	client.flush(server.startup())
 
 	for {
 		messageType, data, err := conn.ReadMessage()
@@ -95,7 +133,7 @@ func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 			client.shell.write([]byte(*message.Keypress))
 
 		case InputEvent:
-			flush(conn, server.parseInput(message.Command, &client))
+			client.flush(server.parseInput(message.Command, &client))
 		}
 	}
 }
@@ -122,16 +160,16 @@ func (server *Server) parseInput(input *string, client *ClientState) []byte {
 	case ClearCommand:
 		return ascii.ClearAll()
 	case ConnectCommand:
-		// flush(client.conn, sandwich([]byte("connecting")))
+		// client.flush(sandwich([]byte("connecting")))
 		//
 		// shell, err := spawnShell(client.dimensions)
 		// if err != nil {
 		// 	fmt.Println(err)
 		// 	return nil
 		// }
-		// flush(client.conn, batch(ascii.ClearLine(), appendLine([]byte("connected"))))
+		// client.flush(batch(ascii.ClearLine(), appendLine([]byte("connected"))))
 		//
-		// go shell.receiveShellOutput(client.conn)
+		// go shell.receiveShellOutput(client)
 		// client.shell = shell
 		// return nil
 		msg := fmt.Appendf(nil, "Real shell sessions coming soon, with a CTF challenge included!")
@@ -141,10 +179,36 @@ func (server *Server) parseInput(input *string, client *ClientState) []byte {
 	}
 }
 
-func flush(conn *websocket.Conn, response []byte) {
-	if err := conn.WriteMessage(websocket.BinaryMessage, response); err != nil {
+func (client *ClientState) flush(response []byte) {
+	client.writeMu.Lock()
+	defer client.writeMu.Unlock()
+
+	client.conn.SetWriteDeadline(time.Now().Add(WriteWait))
+
+	if err := client.conn.WriteMessage(websocket.BinaryMessage, response); err != nil {
 		fmt.Println(err)
 		return
+	}
+}
+
+func (client *ClientState) keepalive(done <-chan struct{}) {
+	ticker := time.NewTicker(PingInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-done:
+			return
+		case <-ticker.C:
+			client.writeMu.Lock()
+			client.conn.SetWriteDeadline(time.Now().Add(WriteWait))
+			err := client.conn.WriteMessage(websocket.PingMessage, nil)
+			client.writeMu.Unlock()
+
+			if err != nil {
+				return
+			}
+		}
 	}
 }
 
