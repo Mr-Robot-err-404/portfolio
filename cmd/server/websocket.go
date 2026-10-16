@@ -105,6 +105,13 @@ func (server *Server) websocket(w http.ResponseWriter, r *http.Request) {
 	}
 	defer server.connections.Add(-1)
 
+	if !server.acquire(addr) {
+		slog.Warn("connection rejected", "addr", addr, "reason", "per ip limit reached")
+		http.Error(w, "too many connections", http.StatusTooManyRequests)
+		return
+	}
+	defer server.release(addr)
+
 	conn, err := server.upgrader.Upgrade(w, r, nil)
 
 	if err != nil {

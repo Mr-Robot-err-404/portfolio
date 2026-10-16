@@ -6,19 +6,25 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
 
-const MaxConnections int64 = 128
+const (
+	MaxConnections      int64 = 128
+	MaxConnectionsPerIP int   = 6
+)
 
 type Server struct {
 	ctx         context.Context
 	upgrader    *websocket.Upgrader
 	presets     map[string][]byte
 	connections atomic.Int64
+	perIPMu     sync.Mutex
+	perIP       map[string]int
 }
 
 func newServer() *Server {
@@ -26,7 +32,30 @@ func newServer() *Server {
 		ctx:      context.Background(),
 		upgrader: &websocket.Upgrader{HandshakeTimeout: 10 * time.Second},
 		presets:  makePresets(),
+		perIP:    make(map[string]int),
 	}
+}
+
+func (server *Server) acquire(addr string) bool {
+	server.perIPMu.Lock()
+	defer server.perIPMu.Unlock()
+
+	if server.perIP[addr] >= MaxConnectionsPerIP {
+		return false
+	}
+	server.perIP[addr]++
+	return true
+}
+
+func (server *Server) release(addr string) {
+	server.perIPMu.Lock()
+	defer server.perIPMu.Unlock()
+
+	if server.perIP[addr] <= 1 {
+		delete(server.perIP, addr)
+		return
+	}
+	server.perIP[addr]--
 }
 
 func main() {
@@ -50,7 +79,11 @@ func main() {
 		IdleTimeout:       60 * time.Second,
 	}
 
-	slog.Info("portfolio listening", "addr", httpServer.Addr, "maxConnections", MaxConnections)
+	slog.Info("portfolio listening",
+		"addr", httpServer.Addr,
+		"maxConnections", MaxConnections,
+		"maxPerIP", MaxConnectionsPerIP,
+	)
 	slog.Error("server stopped", "error", httpServer.ListenAndServe())
 }
 
