@@ -47,10 +47,12 @@
         <article class="project-card">
           <div class="project-copy">
             <h3>perkins</h3>
-            <p>A terminal pixel art editor built around braille characters. Convert an image into ASCII art, then refine it with vim motions or the mouse.</p>
+            <p class="project-lead">A terminal pixel art editor built around braille characters.</p>
+            <p>After painfully trying to edit ASCII art by hand, I realised I had found an unexplored niche, and so this tool was born. Convert an image into ASCII art, then refine it with vim motions or the mouse.</p>
+            <p>Fully open source and quick to get started with.</p>
             <div class="project-meta">
               <span class="project-language project-language-go">Go</span>
-              <div class="project-source"><span class="project-stars" aria-label="95 GitHub stars"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.28l-3.046 2.968.719 4.193a.75.75 0 0 1-1.088.79L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.376a.75.75 0 0 1 .416-1.28l4.21-.612L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.565.41l-3.097.45 2.241 2.184a.75.75 0 0 1 .216.664l-.529 3.084 2.77-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.241-2.184-3.097-.45a.75.75 0 0 1-.565-.41L8 2.695Z"/></svg>94</span><a class="project-link" href="https://github.com/Mr-Robot-err-404/perkins" target="_blank" rel="noopener noreferrer" aria-label="perkins source on GitHub"></a></div>
+              <div class="project-source"><span class="project-stars" aria-label="95 GitHub stars"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.28l-3.046 2.968.719 4.193a.75.75 0 0 1-1.088.79L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.376a.75.75 0 0 1 .416-1.28l4.21-.612L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.565.41l-3.097.45 2.241 2.184a.75.75 0 0 1 .216.664l-.529 3.084 2.77-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.241-2.184-3.097-.45a.75.75 0 0 1-.565-.41L8 2.695Z"/></svg>95</span><a class="project-link" href="https://github.com/Mr-Robot-err-404/perkins" target="_blank" rel="noopener noreferrer" aria-label="perkins source on GitHub"></a></div>
             </div>
           </div>
           <a class="project-media project-media-wide" href="https://github.com/Mr-Robot-err-404/perkins" target="_blank" rel="noopener noreferrer" aria-label="View perkins on GitHub" data-demo="https://vhs.charm.sh/vhs-fwuJ5e5NeijW22jUL6c4u.gif">
@@ -60,7 +62,9 @@
         <article class="project-card">
           <div class="project-copy">
             <h3>tinyrenderer</h3>
-            <p>A software rasterizer written from scratch in Odin. From drawing a single triangle to rendering textured 3D models with depth buffering, lighting, and a hand-built linear algebra layer.</p>
+            <p class="project-lead">A software rasterizer written from scratch in Odin.</p>
+            <p>I followed ssloy's excellent course in 3D rendering without a graphics API. It all starts with a single triangle, which led to marvellous detours through linear algebra and barycentric coordinates. A baptism of fire in 3D rendering.</p>
+            <p>The full process is documented in depth on GitHub.</p>
             <div class="project-meta">
               <span class="project-language project-language-odin">Odin</span>
               <div class="project-source"><span class="project-stars" aria-label="15 GitHub stars"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.28l-3.046 2.968.719 4.193a.75.75 0 0 1-1.088.79L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.376a.75.75 0 0 1 .416-1.28l4.21-.612L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.565.41l-3.097.45 2.241 2.184a.75.75 0 0 1 .216.664l-.529 3.084 2.77-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.241-2.184-3.097-.45a.75.75 0 0 1-.565-.41L8 2.695Z"/></svg>15</span><a class="project-link" href="https://github.com/Mr-Robot-err-404/tinyrenderer" target="_blank" rel="noopener noreferrer" aria-label="tinyrenderer source on GitHub"></a></div>
@@ -73,7 +77,8 @@
         <article class="project-card">
           <div class="project-copy">
             <h3>terminal-wireframe</h3>
-            <p>A 3D wireframe renderer that turns meshes into terminal output. Perspective, clipping, and rasterization written from scratch in Odin.</p>
+            <p class="project-lead">A 3D wireframe rendered in the terminal.</p>
+            <p>Inspired by a 20 minute video from tsoding, this was my entry point into graphics programming. Using nothing but Unicode characters and a simple maths formula, I implemented the magic of projecting 3D coordinates into 2D space.</p>
             <div class="project-meta">
               <span class="project-language project-language-odin">Odin</span>
               <div class="project-source"><span class="project-stars" aria-label="12 GitHub stars"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.28l-3.046 2.968.719 4.193a.75.75 0 0 1-1.088.79L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.376a.75.75 0 0 1 .416-1.28l4.21-.612L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.565.41l-3.097.45 2.241 2.184a.75.75 0 0 1 .216.664l-.529 3.084 2.77-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.241-2.184-3.097-.45a.75.75 0 0 1-.565-.41L8 2.695Z"/></svg>12</span><a class="project-link" href="https://github.com/Mr-Robot-err-404/terminal-wireframe" target="_blank" rel="noopener noreferrer" aria-label="terminal-wireframe source on GitHub"></a></div>
